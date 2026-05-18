@@ -32,18 +32,13 @@ function Root() {
 
 function App() {
     let { contacts, query } = Route.useLoaderData();
-
-    let { q: pendingQuery } = Route.useSearch();
-    let handleInput = useSearchHandler(pendingQuery);
-
-    let { isFetching } = Route.useMatch();
-    let searching = isFetching === "loader";
+    let { value, onInput } = useSearchHandler(query);
 
     let { isLoading, location, resolvedLocation } = useRouterState();
     let isNavigating = isLoading && location.pathname !== resolvedLocation?.pathname;
+    let searching = isLoading && !isNavigating;
     let pendingContactPath = isNavigating ? location.pathname : undefined;
 
-    let value = pendingQuery ?? query ?? "";
     let resultsLabel = query
         ? `${contacts.length} result${contacts.length === 1 ? "" : "s"} for "${query}"`
         : "";
@@ -61,7 +56,7 @@ function App() {
                             className={searching ? "loading" : ""}
                             id="q"
                             name="q"
-                            onInput={handleInput}
+                            onInput={onInput}
                             placeholder="Search"
                             type="search"
                             value={value}
@@ -79,8 +74,7 @@ function App() {
                     {contacts.length ? (
                         <ul>
                             {contacts.map(contact => {
-                                let isPending =
-                                    pendingContactPath === `/contact/${contact.id}`;
+                                let isPending = pendingContactPath === `/contact/${contact.id}`;
                                 return (
                                     <li key={contact.id}>
                                         <Link
