@@ -7,3 +7,6 @@ dist
 **/routes.gen.ts
 **/worker-configuration.d.ts
 *.tsbuildinfo
+*.sqlite
+*.sqlite3
+*.db

@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 export let Route = createFileRoute("/")({
-    component: ZeroState,
+    component: EmptyState,
 });
 
-function ZeroState() {
+function EmptyState() {
     return (
         <p id="zero-state">
             This is a demo for TanStack React Start.

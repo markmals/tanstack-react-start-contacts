@@ -1,7 +1,6 @@
 {
     "include": ["**/*.ts", "**/*.tsx"],
     "compilerOptions": {
-        "composite": true,
         "strict": true,
         "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "types": ["@types/node", "vite/client"],

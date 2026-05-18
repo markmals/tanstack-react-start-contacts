@@ -28,14 +28,14 @@ function RouteComponent() {
                 <span>Name</span>
                 <input
                     aria-label="First name"
-                    defaultValue={contact.first ?? undefined}
+                    defaultValue={contact.first}
                     name="first"
                     placeholder="First"
                     type="text"
                 />
                 <input
                     aria-label="Last name"
-                    defaultValue={contact.last ?? undefined}
+                    defaultValue={contact.last}
                     name="last"
                     placeholder="Last"
                     type="text"
@@ -44,7 +44,7 @@ function RouteComponent() {
             <label>
                 <span>Bluesky</span>
                 <input
-                    defaultValue={contact.bsky ?? undefined}
+                    defaultValue={contact.bsky}
                     name="bsky"
                     placeholder="jay.bsky.team"
                     type="text"
@@ -62,7 +62,7 @@ function RouteComponent() {
             </label>
             <label>
                 <span>Notes</span>
-                <textarea defaultValue={contact.notes ?? undefined} name="notes" rows={6} />
+                <textarea defaultValue={contact.notes} name="notes" rows={6} />
             </label>
             <p>
                 <button type="submit">Save</button>
