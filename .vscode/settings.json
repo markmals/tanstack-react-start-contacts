@@ -1,0 +1,64 @@
+{
+    "js/ts.preferences.importModuleSpecifierEnding": "js",
+    "js/ts.experimental.useTsgo": true,
+
+    "oxc.enable.oxlint": true,
+    "oxc.enable.oxfmt": true,
+
+    "editor.codeActionsOnSave": {
+        "source.fixAll.oxc": "explicit",
+        "source.fixAll": "explicit",
+        "source.addMissingImports.ts": "explicit",
+        "source.removeUnused.ts": "never"
+    },
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+
+    "[typescript]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[tsx]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[jsx]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+
+    "explorer.fileNesting.patterns": {
+        "package.json": ".npmrc, pnpm-*.yaml, tsconfig.json, workspace.json",
+        "vite.config.ts": "drizzle.config.ts, wrangler.jsonc"
+    },
+    "files.exclude": {
+        "**/.tanstack": true,
+        "**/.wrangler": true,
+        "**/dist": true,
+        "**/worker-configuration.d.ts": true
+    },
+    "files.watcherExclude": {
+        "**/routes.gen.ts": true
+    },
+    "search.exclude": {
+        "**/routes.gen.ts": true
+    },
+    "files.readonlyInclude": {
+        "**/routes.gen.ts": true
+    },
+
+    "npmx.diagnostics.distTag": false
+}

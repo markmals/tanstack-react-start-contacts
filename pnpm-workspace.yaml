@@ -1,0 +1,7 @@
+overrides:
+    vite: npm:@voidzero-dev/vite-plus-core@latest
+
+allowBuilds:
+    esbuild: true
+    sharp: true
+    workerd: true

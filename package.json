@@ -1,0 +1,42 @@
+{
+    "name": "tanstack-react-start-contacts",
+    "private": true,
+    "type": "module",
+    "sideEffects": false,
+    "imports": {
+        "#/*": "./app/*",
+        "#db/*": "./db/*"
+    },
+    "dependencies": {
+        "@remix-run/data-schema": "^0.2.0",
+        "@tanstack/react-router": "^1.170.4",
+        "@tanstack/react-router-devtools": "^1.167.0",
+        "@tanstack/react-start": "^1.168.6",
+        "@tanstack/virtual-file-routes": "^1.162.0",
+        "drizzle-orm": "^0.45.2",
+        "es-toolkit": "^1.45.1",
+        "match-sorter": "^8.2.0",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "devDependencies": {
+        "@cloudflare/vite-plugin": "^1.29.0",
+        "@rolldown/plugin-babel": "^0.2.1",
+        "@types/node": "^25.3.2",
+        "@types/react": "^19.0.8",
+        "@types/react-dom": "^19.0.3",
+        "@types/sort-by": "^1.2.3",
+        "@typescript/native-preview": "latest",
+        "@vitejs/plugin-react": "^6.0.2",
+        "babel-plugin-react-compiler": "^1.0.0",
+        "drizzle-kit": "^0.31.10",
+        "eslint-plugin-perfectionist": "^5.7.0",
+        "eslint-plugin-prefer-let": "^4.2.2",
+        "oxlint-tsgolint": "^0.17.2",
+        "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+        "vite-plugin-devtools-json": "^1.0.0",
+        "vite-plus": "latest",
+        "wrangler": "^4.74.0"
+    },
+    "packageManager": "pnpm@11.1.1"
+}
