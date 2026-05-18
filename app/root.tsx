@@ -9,13 +9,11 @@ import {
 import { useActionState, type InputEvent } from "react";
 
 import styles from "./index.css?url";
+import { QuerySchema, fromSearch } from "./lib/schemas.ts";
 import { createContact, getContacts } from "./lib/server-fns.ts";
 
 export let Route = createRootRoute({
-    validateSearch: (search: Record<string, unknown>): { q?: string } => {
-        let q = typeof search.q === "string" && search.q.length > 0 ? search.q : undefined;
-        return q ? { q } : {};
-    },
+    validateSearch: fromSearch<{ q?: string }>()(QuerySchema),
     loaderDeps: ({ search: { q } }) => ({ q }),
     loader: async ({ deps: { q } }) => ({ contacts: await getContacts({ data: { q } }), query: q }),
     component: Root,
@@ -32,14 +30,14 @@ function Root() {
                 <title>TanStack Contacts</title>
             </head>
             <body>
-                <Component />
+                <App />
                 <Scripts />
             </body>
         </html>
     );
 }
 
-function Component() {
+function App() {
     let { contacts, query } = Route.useLoaderData();
 
     let { q: pendingQuery } = Route.useSearch();

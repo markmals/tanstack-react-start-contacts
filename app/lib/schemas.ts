@@ -3,11 +3,9 @@ import * as coerce from "@remix-run/data-schema/coerce";
 import * as f from "@remix-run/data-schema/form-data";
 import assert from "node:assert";
 
-export let QuerySchema = s.optional(
-    s.object({
-        q: s.optional(s.string()),
-    }),
-);
+export let QuerySchema = s.object({
+    q: s.optional(s.string()),
+});
 
 export let FavoriteSchema = f.object({
     id: f.field(coerce.number()),
@@ -29,6 +27,12 @@ export function fromInput<Input>() {
     return <Output>(schema: s.Schema<unknown, Output>) =>
         (input: Input) =>
             s.parse(schema, input);
+}
+
+export function fromSearch<Result extends Record<string, unknown>>() {
+    return (schema: s.Schema<unknown, Result>) =>
+        (search: Record<string, unknown>): Result =>
+            s.parse(schema, search);
 }
 
 let EnvSchema = s.object({

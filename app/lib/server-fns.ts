@@ -6,10 +6,8 @@ import { db } from "./contacts.ts";
 import { FavoriteSchema, IdSchema, QuerySchema, UpdateSchema, fromInput } from "./schemas.ts";
 
 export let getContacts = createServerFn({ method: "GET" })
-    .inputValidator(fromInput<{ q?: string } | undefined>()(QuerySchema))
-    .handler(async ({ data }) => {
-        return await db.contacts.list(data?.q);
-    });
+    .inputValidator(fromInput<{ q?: string }>()(QuerySchema))
+    .handler(({ data }) => db.contacts.list(data.q));
 
 export let createContact = createServerFn({ method: "POST" }).handler(async () => {
     let id = await db.contacts.create();
