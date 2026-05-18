@@ -54,7 +54,7 @@ export default defineConfig({
             },
             check: {
                 dependsOn: ["fmt", "lint", "typecheck"],
-                command: "All quality gates run",
+                command: "echo 'All quality gates run'",
             },
             "db:bootstrap": {
                 dependsOn: ["db:reset", "db:migrations:generate"],

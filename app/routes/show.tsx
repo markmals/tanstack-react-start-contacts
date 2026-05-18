@@ -2,13 +2,13 @@ import { href } from "#/lib/href.ts";
 import { FavoriteSchema } from "#/lib/schemas.ts";
 import { destroyContact, getContact, toggleFavorite } from "#/lib/server-fns.ts";
 import * as s from "@remix-run/data-schema";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound, useNavigate, useRouter } from "@tanstack/react-router";
 import { useActionState, useOptimistic } from "react";
 
 export let Route = createFileRoute("/contact/$id")({
     async loader({ params }) {
         let contact = await getContact({ data: params.id });
-        if (!contact) throw redirect({ statusCode: 404 });
+        if (!contact) throw notFound();
         return contact;
     },
     component: ShowContact,
@@ -95,12 +95,14 @@ function ShowContact() {
 }
 
 function Favorite(props: { favorite: boolean; id: string }) {
+    let router = useRouter();
     let [favorited, setFavorite] = useOptimistic(props.favorite);
     let [, action] = useActionState(
         async (_state: void, formData: FormData) => {
             let { favorite } = s.parse(FavoriteSchema, formData);
             setFavorite(favorite);
             await toggleFavorite({ data: formData });
+            await router.invalidate();
         },
         undefined,
         toggleFavorite.url,

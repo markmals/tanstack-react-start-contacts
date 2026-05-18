@@ -1,11 +1,17 @@
 import { editContact, getContact } from "#/lib/server-fns.ts";
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import {
+    createFileRoute,
+    notFound,
+    useCanGoBack,
+    useNavigate,
+    useRouter,
+} from "@tanstack/react-router";
 import { useActionState } from "react";
 
 export let Route = createFileRoute("/contact/$id/edit")({
     async loader({ params }) {
         let contact = await getContact({ data: params.id });
-        if (!contact) throw redirect({ statusCode: 404 });
+        if (!contact) throw notFound();
         return contact;
     },
     component: RouteComponent,
@@ -14,12 +20,23 @@ export let Route = createFileRoute("/contact/$id/edit")({
 function RouteComponent() {
     let contact = Route.useLoaderData();
     let router = useRouter();
+    let navigate = useNavigate();
+    let canGoBack = useCanGoBack();
+    let params = Route.useParams();
 
     let [, editAction] = useActionState(
         (_state: void, data: FormData) => editContact({ data }),
         undefined,
         editContact.url,
     );
+
+    function handleCancel() {
+        if (canGoBack) {
+            router.history.back();
+        } else {
+            navigate({ to: "/contact/$id", params });
+        }
+    }
 
     return (
         <form action={editAction} id="contact-form" method="post">
@@ -46,7 +63,9 @@ function RouteComponent() {
                 <input
                     defaultValue={contact.bsky}
                     name="bsky"
+                    pattern="@?[a-zA-Z0-9][a-zA-Z0-9.\-]*\.[a-zA-Z0-9][a-zA-Z0-9.\-]*"
                     placeholder="jay.bsky.team"
+                    title="A Bluesky handle like jay.bsky.team"
                     type="text"
                 />
             </label>
@@ -57,7 +76,7 @@ function RouteComponent() {
                     defaultValue={contact.avatar ?? undefined}
                     name="avatar"
                     placeholder="https://example.com/avatar.jpg"
-                    type="text"
+                    type="url"
                 />
             </label>
             <label>
@@ -66,7 +85,7 @@ function RouteComponent() {
             </label>
             <p>
                 <button type="submit">Save</button>
-                <button onClick={() => router.history.back()} type="button">
+                <button onClick={handleCancel} type="button">
                     Cancel
                 </button>
             </p>

@@ -41,11 +41,18 @@ function App() {
     let { contacts, query } = Route.useLoaderData();
 
     let { q: pendingQuery } = Route.useSearch();
-    let { isLoading } = useRouterState();
     let navigate = useNavigate();
 
-    let searching = Boolean(pendingQuery);
+    let searching = Route.useMatch({ select: match => match.isFetching === "loader" });
+    let isLoading = useRouterState({ select: state => state.isLoading });
+    let pendingContactPath = useRouterState({
+        select: state => (state.isLoading ? state.location.pathname : undefined),
+    });
+
     let value = pendingQuery ?? query ?? "";
+    let resultsLabel = query
+        ? `${contacts.length} result${contacts.length === 1 ? "" : "s"} for "${query}"`
+        : "";
 
     function handleInput(event: InputEvent<HTMLInputElement>) {
         let next = event.currentTarget.value.trim() || undefined;
@@ -64,7 +71,7 @@ function App() {
             <div id="sidebar">
                 <h1>TanStack Contacts</h1>
                 <div>
-                    <form id="search-form" method="get">
+                    <form id="search-form" method="get" onSubmit={e => e.preventDefault()}>
                         <input
                             aria-label="Search contacts"
                             className={searching ? "loading" : ""}
@@ -76,7 +83,9 @@ function App() {
                             value={value}
                         />
                         <div aria-hidden hidden={!searching} id="search-spinner" />
-                        <div aria-live="polite" className="sr-only" />
+                        <div aria-live="polite" className="sr-only">
+                            {searching ? "" : resultsLabel}
+                        </div>
                     </form>
                     <form action={createAction} method="post">
                         <button type="submit">New</button>
@@ -89,7 +98,11 @@ function App() {
                                 <li key={contact.id}>
                                     <Link
                                         activeProps={{ className: "active" }}
-                                        className={isLoading ? "pending" : undefined}
+                                        className={
+                                            pendingContactPath === `/contact/${contact.id}`
+                                                ? "pending"
+                                                : undefined
+                                        }
                                         params={{ id: String(contact.id) }}
                                         to="/contact/$id"
                                     >

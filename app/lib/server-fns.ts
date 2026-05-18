@@ -1,5 +1,5 @@
 import * as coerce from "@remix-run/data-schema/coerce";
-import { redirect } from "@tanstack/react-router";
+import { notFound, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
 import { db } from "./contacts.ts";
@@ -20,8 +20,9 @@ export let getContact = createServerFn({ method: "GET" })
 
 export let toggleFavorite = createServerFn({ method: "POST" })
     .inputValidator(fromInput<FormData>()(FavoriteSchema))
-    .handler(({ data }) => {
-        db.contacts.update(data.id, { favorite: data.favorite });
+    .handler(async ({ data }) => {
+        let updated = await db.contacts.update(data.id, { favorite: data.favorite });
+        if (!updated) throw notFound();
     });
 
 export let destroyContact = createServerFn({ method: "POST" })
@@ -33,6 +34,8 @@ export let destroyContact = createServerFn({ method: "POST" })
 
 export let editContact = createServerFn({ method: "POST" })
     .inputValidator(fromInput<FormData>()(UpdateSchema))
-    .handler(({ data }) => {
-        db.contacts.update(data.id, data);
+    .handler(async ({ data }) => {
+        let updated = await db.contacts.update(data.id, data);
+        if (!updated) throw notFound();
+        throw redirect({ to: "/contact/$id", params: { id: String(data.id) } });
     });
