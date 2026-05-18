@@ -2,7 +2,7 @@ import { editContact, getContact } from "#/lib/server-fns.ts";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useActionState } from "react";
 
-export const Route = createFileRoute("/contact/$id/edit")({
+export let Route = createFileRoute("/contact/$id/edit")({
     async loader({ params }) {
         let contact = await getContact({ data: params.id });
         if (!contact) throw redirect({ statusCode: 404 });

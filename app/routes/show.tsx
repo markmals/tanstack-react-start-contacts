@@ -5,7 +5,7 @@ import * as s from "@remix-run/data-schema";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useActionState, useOptimistic } from "react";
 
-export const Route = createFileRoute("/contact/$id")({
+export let Route = createFileRoute("/contact/$id")({
     async loader({ params }) {
         let contact = await getContact({ data: params.id });
         if (!contact) throw redirect({ statusCode: 404 });
