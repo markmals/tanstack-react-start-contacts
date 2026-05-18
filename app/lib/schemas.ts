@@ -35,9 +35,7 @@ export function fromSearch<Result extends Record<string, unknown>>() {
             s.parse(schema, search);
 }
 
-let EnvSchema = s.object({
-    DATABASE_URL: s.string(),
-});
+let EnvSchema = s.object({});
 
 export function parseEnv() {
     let env = s.parseSafe(EnvSchema, process.env);
