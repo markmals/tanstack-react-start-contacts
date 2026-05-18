@@ -1,13 +1,12 @@
 import type { Id } from "#convex/_generated/dataModel.js";
 
-import { createContact, destroyContact, toggleFavorite } from "#/lib/data/mutations.ts";
+import { createContact, destroyContact, toggleFavorite } from "#/data/mutations.ts";
+import { useHref } from "#/lib/href.ts";
 import { api } from "#convex/_generated/api.js";
 import { linkOptions, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "convex/react";
 import { type ComponentProps } from "react";
-
-import { useHref } from "../href.ts";
 
 export function NewButton(props: ComponentProps<"form">) {
     let create = useServerFn(createContact);

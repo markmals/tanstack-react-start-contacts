@@ -1,9 +1,8 @@
-import { updateContact } from "#/lib/data/mutations.ts";
+import { updateContact } from "#/data/mutations.ts";
+import { useNavigating } from "#/lib/hooks.ts";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState, type ComponentProps, type InputEvent } from "react";
-
-import { useNavigating } from "../hooks.ts";
 
 export function EditContactForm(props: ComponentProps<"form">) {
     let edit = useServerFn(updateContact);

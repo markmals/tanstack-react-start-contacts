@@ -1,10 +1,10 @@
 import type { Id } from "#convex/_generated/dataModel.js";
 
+import { FavoriteSchema, IdSchema, UpdateSchema, fromInput } from "#/lib/schemas.ts";
 import { api } from "#convex/_generated/api.js";
 import { notFound, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
-import { FavoriteSchema, IdSchema, UpdateSchema, fromInput } from "../schemas.ts";
 import { createConvexHttpClient } from "./convex.ts";
 
 export let createContact = createServerFn({ method: "POST" }).handler(async () => {

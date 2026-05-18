@@ -1,5 +1,5 @@
-import { DeleteButton, EditButton, FavoriteButton } from "#/lib/components/buttons.tsx";
-import { getContactQuery } from "#/lib/data/queries.ts";
+import { DeleteButton, EditButton, FavoriteButton } from "#/components/buttons.tsx";
+import { getContactQuery } from "#/data/queries.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 

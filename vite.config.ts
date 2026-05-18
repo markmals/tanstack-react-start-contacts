@@ -36,7 +36,8 @@ export default defineConfig({
                 command: "vp dev",
             },
             "dev:convex": {
-                command: "convex dev",
+                dependsOn: ["db:reset"],
+                command: "yes | convex dev",
                 cache: false,
             },
             build: {
@@ -64,6 +65,10 @@ export default defineConfig({
             check: {
                 dependsOn: ["fmt", "lint", "typecheck"],
                 command: "echo 'All quality gates run'",
+            },
+            "db:reset": {
+                command: "rm -rf .convex",
+                cache: false,
             },
             // deploy: {
             //     dependsOn: ["deploy:cloudflare", "deploy:convex"],

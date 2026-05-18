@@ -1,9 +1,8 @@
 import type { Doc } from "#convex/_generated/dataModel.js";
 
+import { useNavigating } from "#/lib/hooks.ts";
+import { useHref } from "#/lib/href.ts";
 import { Link, useLocation } from "@tanstack/react-router";
-
-import { useNavigating } from "../hooks.ts";
-import { useHref } from "../href.ts";
 
 export function SidebarItem({ contact }: { contact: Doc<"contacts"> }) {
     let location = useLocation();

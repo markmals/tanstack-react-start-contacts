@@ -1,6 +1,5 @@
+import { useNavigating } from "#/lib/hooks.ts";
 import { Outlet } from "@tanstack/react-router";
-
-import { useNavigating } from "../hooks.ts";
 
 export function Details() {
     let isNavigating = useNavigating();

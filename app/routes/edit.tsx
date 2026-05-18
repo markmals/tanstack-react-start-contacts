@@ -1,6 +1,6 @@
-import { CancelButton } from "#/lib/components/buttons.tsx";
-import { EditContactForm } from "#/lib/components/forms.tsx";
-import { getContactQuery } from "#/lib/data/queries.ts";
+import { CancelButton } from "#/components/buttons.tsx";
+import { EditContactForm } from "#/components/forms.tsx";
+import { getContactQuery } from "#/data/queries.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 

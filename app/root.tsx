@@ -1,13 +1,13 @@
 import { useSuspenseQuery, type QueryClient } from "@tanstack/react-query";
 import { Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 
-import styles from "./index.css?url";
-import { NewButton } from "./lib/components/buttons.tsx";
-import { Details } from "./lib/components/details.tsx";
-import { SearchForm } from "./lib/components/forms.tsx";
-import { SidebarItem } from "./lib/components/sidebar-item.tsx";
-import { listContactsQuery } from "./lib/data/queries.ts";
+import { NewButton } from "./components/buttons.tsx";
+import { Details } from "./components/details.tsx";
+import { SearchForm } from "./components/forms.tsx";
+import { SidebarItem } from "./components/sidebar-item.tsx";
+import { listContactsQuery } from "./data/queries.ts";
 import { QuerySchema, fromSearch } from "./lib/schemas.ts";
+import styles from "./styles/index.css?url";
 
 export let Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
     validateSearch: fromSearch<{ q?: string }>()(QuerySchema),

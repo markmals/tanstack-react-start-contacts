@@ -5,14 +5,14 @@ import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { ConvexProvider } from "convex/react";
 
-import { createConvexQueryClient } from "./lib/data/convex.ts";
+import { createConvexQueryClient } from "./data/convex.ts";
 import { parseEnv } from "./lib/schemas.ts";
 import { routeTree } from "./routes.gen.ts";
 
 const { DEV, SSR } = parseEnv(import.meta.env);
 
 if (DEV && SSR) {
-    let { seedDatabase } = await import("./lib/data/seed.ts");
+    let { seedDatabase } = await import("./data/seed.ts");
     await seedDatabase();
 }
 
