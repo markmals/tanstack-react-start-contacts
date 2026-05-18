@@ -1,12 +1,6 @@
-import { editContact, getContact } from "#/lib/server-fns.ts";
-import {
-    createFileRoute,
-    notFound,
-    useCanGoBack,
-    useNavigate,
-    useRouter,
-} from "@tanstack/react-router";
-import { useActionState } from "react";
+import { useCancelHandler, useUpdateAction } from "#/lib/hooks.ts";
+import { getContact } from "#/lib/server-fns.ts";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 
 export let Route = createFileRoute("/contact/$id/edit")({
     async loader({ params }) {
@@ -14,33 +8,20 @@ export let Route = createFileRoute("/contact/$id/edit")({
         if (!contact) throw notFound();
         return contact;
     },
-    component: RouteComponent,
+    component: EditContact,
 });
 
-function RouteComponent() {
+function EditContact() {
     let contact = Route.useLoaderData();
-    let router = useRouter();
-    let navigate = useNavigate();
-    let canGoBack = useCanGoBack();
     let params = Route.useParams();
 
-    let [, editAction] = useActionState(
-        (_state: void, data: FormData) => editContact({ data }),
-        undefined,
-        editContact.url,
-    );
-
-    function handleCancel() {
-        if (canGoBack) {
-            router.history.back();
-        } else {
-            navigate({ to: "/contact/$id", params });
-        }
-    }
+    let updateAction = useUpdateAction();
+    let handleCancel = useCancelHandler(params.id);
 
     return (
-        <form action={editAction} id="contact-form" method="post">
+        <form action={updateAction} id="contact-form">
             <title>{`Editing ${contact.first} ${contact.last} | TanStack Contacts`}</title>
+            <input name="id" type="hidden" value={params.id} />
             <p>
                 <span>Name</span>
                 <input

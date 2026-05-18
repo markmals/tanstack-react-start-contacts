@@ -1,9 +1,9 @@
-import { useHref } from "#/lib/href.ts";
+import { useDestroyAction, useEditNavigation } from "#/lib/hooks.ts";
 import { FavoriteSchema } from "#/lib/schemas.ts";
-import { destroyContact, getContact, toggleFavorite } from "#/lib/server-fns.ts";
+import { getContact, toggleFavorite } from "#/lib/server-fns.ts";
 import * as s from "@remix-run/data-schema";
-import { createFileRoute, notFound, useNavigate, useRouter } from "@tanstack/react-router";
-import { useActionState, useOptimistic } from "react";
+import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
+import { useActionState, useOptimistic, useState } from "react";
 
 export let Route = createFileRoute("/contact/$id")({
     async loader({ params }) {
@@ -16,29 +16,11 @@ export let Route = createFileRoute("/contact/$id")({
 
 function ShowContact() {
     let contact = Route.useLoaderData();
-    let hasAvatar = !!contact.avatar;
+    let hasAvatar = Boolean(contact.avatar);
 
     let params = Route.useParams();
-    let navigate = useNavigate();
-    let editHref = useHref({ to: "/contact/$id/edit", params: { id: params.id } });
-
-    let [, destroyAction] = useActionState(
-        async (_state: void, formData: FormData) => {
-            if (!confirm("Please confirm you want to delete this record.")) {
-                return;
-            }
-
-            await destroyContact({ data: formData });
-        },
-        undefined,
-        destroyContact.url,
-    );
-
-    let [, editAction] = useActionState(
-        () => navigate({ to: "/contact/$id/edit", params: { id: params.id } }),
-        undefined,
-        editHref,
-    );
+    let navigateToEdit = useEditNavigation(params.id);
+    let destroyAction = useDestroyAction();
 
     return (
         <div id="contact">
@@ -64,7 +46,7 @@ function ShowContact() {
                     ) : (
                         <i>No Name</i>
                     )}{" "}
-                    <Favorite favorite={contact.favorite} id={params.id} />
+                    <Favorite favorite={contact.favorite} id={params.id} key={params.id} />
                 </h1>
 
                 {contact.bsky && (
@@ -82,10 +64,10 @@ function ShowContact() {
                 {contact.notes && <p>{contact.notes}</p>}
 
                 <div>
-                    <form action={editAction} method="get">
+                    <form action={navigateToEdit}>
                         <button type="submit">Edit</button>
                     </form>
-                    <form action={destroyAction} className="destroy-form" method="post">
+                    <form action={destroyAction} className="destroy-form">
                         <input name="id" type="hidden" value={params.id} />
                         <button type="submit">Delete</button>
                     </form>
@@ -97,12 +79,15 @@ function ShowContact() {
 
 function Favorite(props: { favorite: boolean; id: string }) {
     let router = useRouter();
-    let [favorited, setFavorite] = useOptimistic(props.favorite);
+    // Local base, committed inside the action, prevents an optimistic-to-stale-prop flash on revalidate.
+    let [committed, setCommitted] = useState(props.favorite);
+    let [favorited, setFavorite] = useOptimistic(committed);
     let [, action] = useActionState(
         async (_state: void, formData: FormData) => {
             let { favorite } = s.parse(FavoriteSchema, formData);
             setFavorite(favorite);
             await toggleFavorite({ data: formData });
+            setCommitted(favorite);
             await router.invalidate();
         },
         undefined,
@@ -110,13 +95,13 @@ function Favorite(props: { favorite: boolean; id: string }) {
     );
 
     return (
-        <form action={action} method="post">
+        <form action={action}>
             <input name="id" type="hidden" value={props.id} />
+            <input name="favorite" type="hidden" value={favorited ? "false" : "true"} />
             <button
                 aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
-                name="favorite"
+                data-favorited={favorited}
                 type="submit"
-                value={favorited ? "false" : "true"}
             >
                 {favorited ? "★" : "☆"}
             </button>

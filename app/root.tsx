@@ -1,16 +1,9 @@
-import {
-    Outlet,
-    createRootRoute,
-    Scripts,
-    useNavigate,
-    Link,
-    useRouterState,
-} from "@tanstack/react-router";
-import { useActionState, type InputEvent } from "react";
+import { Outlet, createRootRoute, Scripts, Link, useRouterState } from "@tanstack/react-router";
 
 import styles from "./index.css?url";
+import { useCreateAction, useSearchHandler } from "./lib/hooks.ts";
 import { QuerySchema, fromSearch } from "./lib/schemas.ts";
-import { createContact, getContacts } from "./lib/server-fns.ts";
+import { getContacts } from "./lib/server-fns.ts";
 
 export let Route = createRootRoute({
     validateSearch: fromSearch<{ q?: string }>()(QuerySchema),
@@ -41,30 +34,21 @@ function App() {
     let { contacts, query } = Route.useLoaderData();
 
     let { q: pendingQuery } = Route.useSearch();
-    let navigate = useNavigate();
+    let handleInput = useSearchHandler(pendingQuery);
 
-    let searching = Route.useMatch({ select: match => match.isFetching === "loader" });
-    let isLoading = useRouterState({ select: state => state.isLoading });
-    let pendingContactPath = useRouterState({
-        select: state => (state.isLoading ? state.location.pathname : undefined),
-    });
+    let { isFetching } = Route.useMatch();
+    let searching = isFetching === "loader";
+
+    let { isLoading, location, resolvedLocation } = useRouterState();
+    let isNavigating = isLoading && location.pathname !== resolvedLocation?.pathname;
+    let pendingContactPath = isNavigating ? location.pathname : undefined;
 
     let value = pendingQuery ?? query ?? "";
     let resultsLabel = query
         ? `${contacts.length} result${contacts.length === 1 ? "" : "s"} for "${query}"`
         : "";
 
-    function handleInput(event: InputEvent<HTMLInputElement>) {
-        let next = event.currentTarget.value.trim() || undefined;
-        let isFirstSearch = pendingQuery === undefined;
-        navigate({
-            to: ".",
-            search: prev => ({ ...prev, q: next }),
-            replace: !isFirstSearch,
-        });
-    }
-
-    let [, createAction] = useActionState(() => createContact(), undefined, createContact.url);
+    let createAction = useCreateAction();
 
     return (
         <div id="root">
@@ -87,7 +71,7 @@ function App() {
                             {searching ? "" : resultsLabel}
                         </div>
                     </form>
-                    <form action={createAction} method="post">
+                    <form action={createAction}>
                         <button type="submit">New</button>
                     </form>
                 </div>
@@ -125,7 +109,7 @@ function App() {
                     )}
                 </nav>
             </div>
-            <div className={isLoading ? "loading" : ""} id="detail">
+            <div className={isNavigating ? "loading" : ""} id="detail">
                 <Outlet />
             </div>
         </div>
