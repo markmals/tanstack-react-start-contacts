@@ -78,29 +78,29 @@ function App() {
                 <nav>
                     {contacts.length ? (
                         <ul>
-                            {contacts.map(contact => (
-                                <li key={contact.id}>
-                                    <Link
-                                        activeProps={{ className: "active" }}
-                                        className={
-                                            pendingContactPath === `/contact/${contact.id}`
-                                                ? "pending"
-                                                : undefined
-                                        }
-                                        params={{ id: String(contact.id) }}
-                                        to="/contact/$id"
-                                    >
-                                        {contact.first || contact.last ? (
-                                            <>
-                                                {contact.first} {contact.last}
-                                            </>
-                                        ) : (
-                                            <i>No Name</i>
-                                        )}
-                                        {contact.favorite && <span>★</span>}
-                                    </Link>
-                                </li>
-                            ))}
+                            {contacts.map(contact => {
+                                let isPending =
+                                    pendingContactPath === `/contact/${contact.id}`;
+                                return (
+                                    <li key={contact.id}>
+                                        <Link
+                                            activeProps={isPending ? {} : { className: "active" }}
+                                            className={isPending ? "pending" : undefined}
+                                            params={{ id: String(contact.id) }}
+                                            to="/contact/$id"
+                                        >
+                                            {contact.first || contact.last ? (
+                                                <>
+                                                    {contact.first} {contact.last}
+                                                </>
+                                            ) : (
+                                                <i>No Name</i>
+                                            )}
+                                            {contact.favorite && <span>★</span>}
+                                        </Link>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     ) : (
                         <p>
