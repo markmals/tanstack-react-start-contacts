@@ -41,7 +41,7 @@ function ShowContact() {
 
     return (
         <div id="contact">
-            <title>{`${contact.first} ${contact.last} | React Router Contacts`}</title>
+            <title>{`${contact.first} ${contact.last} | TanStack Contacts`}</title>
             <div>
                 <img
                     alt=""

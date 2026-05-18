@@ -23,7 +23,7 @@ function RouteComponent() {
 
     return (
         <form action={editAction} id="contact-form" method="post">
-            <title>{`Editing ${contact.first} ${contact.last} | React Router Contacts`}</title>
+            <title>{`Editing ${contact.first} ${contact.last} | TanStack Contacts`}</title>
             <p>
                 <span>Name</span>
                 <input

@@ -62,7 +62,7 @@ function App() {
     return (
         <div id="root">
             <div id="sidebar">
-                <h1>React Router Contacts</h1>
+                <h1>TanStack Contacts</h1>
                 <div>
                     <form id="search-form" method="get">
                         <input
