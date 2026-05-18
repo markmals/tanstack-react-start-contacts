@@ -15,3 +15,4 @@ export let Contacts = table("contacts", {
 });
 
 export type Contact = typeof Contacts.$inferSelect;
+export type CreateContact = typeof Contacts.$inferInsert;

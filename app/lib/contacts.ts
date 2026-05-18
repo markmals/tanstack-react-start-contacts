@@ -1,7 +1,7 @@
-import { Contacts, type Contact } from "#db/schema.ts";
+import { Contacts, type Contact, type CreateContact } from "#db/schema.ts";
 import * as schema from "#db/schema.ts";
 import { env } from "cloudflare:workers";
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { sortBy } from "es-toolkit/array";
 import { matchSorter } from "match-sorter";
@@ -36,12 +36,17 @@ export class ContactsRepo {
         return sortBy(rows, ["last", "createdAt"]);
     }
 
-    async create(): Promise<number> {
+    async createEmpty(): Promise<number> {
         let [contact] = await this.#db
             .insert(Contacts)
             .values({ first: "", last: "", bsky: "", notes: "" })
             .returning();
 
+        return contact.id;
+    }
+
+    async create(values: CreateContact): Promise<number> {
+        let [contact] = await this.#db.insert(Contacts).values(values).returning();
         return contact.id;
     }
 
@@ -92,6 +97,13 @@ export class ContactsRepo {
 
         // Fake network slowdown between 1-3 seconds
         await sleep(1000 + Math.random() * 2_000);
+    }
+
+    get count(): Promise<number> {
+        return (async () => {
+            let [result] = await this.#db.select({ count: count() }).from(Contacts);
+            return result.count;
+        })();
     }
 }
 

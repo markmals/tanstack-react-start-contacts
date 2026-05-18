@@ -1,4 +1,4 @@
-import { href } from "#/lib/href.ts";
+import { useHref } from "#/lib/href.ts";
 import { FavoriteSchema } from "#/lib/schemas.ts";
 import { destroyContact, getContact, toggleFavorite } from "#/lib/server-fns.ts";
 import * as s from "@remix-run/data-schema";
@@ -20,6 +20,7 @@ function ShowContact() {
 
     let params = Route.useParams();
     let navigate = useNavigate();
+    let editHref = useHref({ to: "/contact/$id/edit", params: { id: params.id } });
 
     let [, destroyAction] = useActionState(
         async (_state: void, formData: FormData) => {
@@ -36,7 +37,7 @@ function ShowContact() {
     let [, editAction] = useActionState(
         () => navigate({ to: "/contact/$id/edit", params: { id: params.id } }),
         undefined,
-        href({ to: "/contact/$id/edit", params: { id: params.id } }),
+        editHref,
     );
 
     return (

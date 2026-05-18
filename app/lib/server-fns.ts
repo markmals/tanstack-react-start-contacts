@@ -10,7 +10,7 @@ export let getContacts = createServerFn({ method: "GET" })
     .handler(({ data }) => db.contacts.list(data.q));
 
 export let createContact = createServerFn({ method: "POST" }).handler(async () => {
-    let id = await db.contacts.create();
+    let id = await db.contacts.createEmpty();
     throw redirect({ to: "/contact/$id/edit", params: { id: String(id) } });
 });
 
