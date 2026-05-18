@@ -3,10 +3,13 @@ import { getContact } from "#/lib/server-fns.ts";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 
 export let Route = createFileRoute("/contact/$id/edit")({
-    async loader({ params }) {
-        let contact = await getContact({ data: params.id });
-        if (!contact) throw notFound();
-        return contact;
+    loader: {
+        handler: async ({ params }) => {
+            let contact = await getContact({ data: params.id });
+            if (!contact) throw notFound();
+            return contact;
+        },
+        staleReloadMode: "blocking",
     },
     component: EditContact,
 });
