@@ -84,7 +84,7 @@ function ShowContact() {
                     <form action={editAction} method="get">
                         <button type="submit">Edit</button>
                     </form>
-                    <form action={destroyAction} method="post">
+                    <form action={destroyAction} className="destroy-form" method="post">
                         <input name="id" type="hidden" value={params.id} />
                         <button type="submit">Delete</button>
                     </form>

@@ -85,7 +85,7 @@ button:active {
     color: #eeb004;
 }
 
-form[action$="destroy"] button {
+.destroy-form button {
     color: #f44250;
 }
 

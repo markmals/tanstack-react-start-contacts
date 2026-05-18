@@ -57,8 +57,8 @@ export default defineConfig({
                 command: "All quality gates run",
             },
             "db:bootstrap": {
-                dependsOn: ["db:reset"],
-                command: "drizzle-kit push",
+                dependsOn: ["db:reset", "db:migrations:generate"],
+                command: "wrangler d1 migrations apply contacts --local",
             },
             "db:reset": {
                 command: "rm -rf .wrangler/state/v3/d1",
@@ -68,7 +68,7 @@ export default defineConfig({
             },
             "db:migrations:apply:local": {
                 dependsOn: ["db:migrations:generate"],
-                command: "drizzle-kit migrate",
+                command: "wrangler d1 migrations apply contacts --local",
             },
             // "db:migrations:apply:remote": {
             //     command: "wrangler d1 migrations apply contacts --remote",

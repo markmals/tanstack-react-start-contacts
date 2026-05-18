@@ -2,7 +2,6 @@ import {
     Outlet,
     createRootRoute,
     Scripts,
-    useLocation,
     useNavigate,
     Link,
     useRouterState,
@@ -13,7 +12,12 @@ import styles from "./index.css?url";
 import { createContact, getContacts } from "./lib/server-fns.ts";
 
 export let Route = createRootRoute({
-    loader: () => getContacts(),
+    validateSearch: (search: Record<string, unknown>): { q?: string } => {
+        let q = typeof search.q === "string" && search.q.length > 0 ? search.q : undefined;
+        return q ? { q } : {};
+    },
+    loaderDeps: ({ search: { q } }) => ({ q }),
+    loader: async ({ deps: { q } }) => ({ contacts: await getContacts({ data: { q } }), query: q }),
     component: Root,
 });
 
@@ -38,27 +42,21 @@ function Root() {
 function Component() {
     let { contacts, query } = Route.useLoaderData();
 
-    let location = useLocation();
+    let { q: pendingQuery } = Route.useSearch();
     let { isLoading } = useRouterState();
     let navigate = useNavigate();
 
-    let pendingQuery = new URLSearchParams(location.search).get("q");
     let searching = Boolean(pendingQuery);
     let value = pendingQuery ?? query ?? "";
 
     function handleInput(event: InputEvent<HTMLInputElement>) {
-        let url = new URL(location.href);
-
-        // Remove empty query params when value is empty
-        if (!event.currentTarget.value.trim()) {
-            url.searchParams.delete("q");
-            navigate({ to: url.toString() });
-            return;
-        }
-
-        let isFirstSearch = url.searchParams.get("q") === null;
-        url.searchParams.set("q", event.currentTarget.value);
-        navigate({ to: url.toString(), replace: !isFirstSearch });
+        let next = event.currentTarget.value.trim() || undefined;
+        let isFirstSearch = pendingQuery === undefined;
+        navigate({
+            to: ".",
+            search: prev => ({ ...prev, q: next }),
+            replace: !isFirstSearch,
+        });
     }
 
     let [, createAction] = useActionState(() => createContact(), undefined, createContact.url);

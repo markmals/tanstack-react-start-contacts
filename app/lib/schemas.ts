@@ -3,9 +3,11 @@ import * as coerce from "@remix-run/data-schema/coerce";
 import * as f from "@remix-run/data-schema/form-data";
 import assert from "node:assert";
 
-export let QuerySchema = f.object({
-    q: f.field(s.union([s.string(), s.undefined_()])),
-});
+export let QuerySchema = s.optional(
+    s.object({
+        q: s.optional(s.string()),
+    }),
+);
 
 export let FavoriteSchema = f.object({
     id: f.field(coerce.number()),
