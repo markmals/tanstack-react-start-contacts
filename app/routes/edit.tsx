@@ -1,6 +1,6 @@
-import { useUpdateForm } from "#/lib/forms.ts";
+import { useUpdateForm } from "#/lib/data/forms.ts";
+import { getContactQuery } from "#/lib/data/queries.ts";
 import { useCancelHandler } from "#/lib/hooks.ts";
-import { getContactQuery } from "#/lib/queries.ts";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { use } from "react";

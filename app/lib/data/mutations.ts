@@ -4,8 +4,8 @@ import { api } from "#convex/_generated/api.js";
 import { notFound, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
+import { FavoriteSchema, IdSchema, UpdateSchema, fromInput } from "../schemas.ts";
 import { createConvexHttpClient } from "./convex.ts";
-import { FavoriteSchema, IdSchema, UpdateSchema, fromInput } from "./schemas.ts";
 
 function contactId(value: string): Id<"contacts"> {
     return value as Id<"contacts">;
@@ -37,7 +37,7 @@ export let destroyContact = createServerFn({ method: "POST" })
         throw redirect({ to: "/" });
     });
 
-export let editContact = createServerFn({ method: "POST" })
+export let updateContact = createServerFn({ method: "POST" })
     .inputValidator(fromInput<FormData>()(UpdateSchema))
     .handler(async ({ data }) => {
         let convex = createConvexHttpClient();

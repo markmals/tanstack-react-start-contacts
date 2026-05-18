@@ -6,8 +6,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "convex/react";
 import { type ComponentProps } from "react";
 
-import { useHref } from "./href.ts";
-import { createContact, destroyContact, editContact, toggleFavorite } from "./server-fns.ts";
+import { createContact, destroyContact, updateContact, toggleFavorite } from "../data/mutations.ts";
+import { useHref } from "../href.ts";
 
 export type FormDirective = Pick<ComponentProps<"form">, "action" | "method" | "onSubmit">;
 
@@ -16,7 +16,8 @@ export function useCreateForm(): FormDirective {
     return {
         method: createContact.method,
         action: createContact.url,
-        onSubmit: async () => {
+        onSubmit: async event => {
+            event.preventDefault();
             await create();
         },
     };
@@ -40,10 +41,10 @@ export function useDestroyForm(): FormDirective {
 }
 
 export function useUpdateForm(): FormDirective {
-    let edit = useServerFn(editContact);
+    let edit = useServerFn(updateContact);
     return {
-        method: editContact.method,
-        action: editContact.url,
+        method: updateContact.method,
+        action: updateContact.url,
         onSubmit: async event => {
             event.preventDefault();
             await edit({ data: new FormData(event.currentTarget) });

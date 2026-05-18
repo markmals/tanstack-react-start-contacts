@@ -3,7 +3,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { ConvexHttpClient } from "convex/browser";
 import { ConvexReactClient } from "convex/react";
 
-import { parseEnv } from "./schemas.ts";
+import { parseEnv } from "../schemas.ts";
 
 const { VITE_CONVEX_URL } = parseEnv(import.meta.env);
 

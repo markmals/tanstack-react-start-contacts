@@ -9,10 +9,10 @@ import {
 import { use } from "react";
 
 import styles from "./index.css?url";
-import { useCreateForm } from "./lib/forms.ts";
+import { useCreateForm } from "./lib/data/forms.ts";
+import { listContactsQuery } from "./lib/data/queries.ts";
 import { useSearchHandler } from "./lib/hooks.ts";
 import { useHref } from "./lib/href.ts";
-import { listContactsQuery } from "./lib/queries.ts";
 import { QuerySchema, fromSearch } from "./lib/schemas.ts";
 
 export let Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
