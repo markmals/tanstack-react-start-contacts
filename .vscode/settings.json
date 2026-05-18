@@ -45,6 +45,7 @@
         "vite.config.ts": "drizzle.config.ts, wrangler.jsonc"
     },
     "files.exclude": {
+        "**/.convex": true,
         "**/.tanstack": true,
         "**/.wrangler": true,
         "**/dist": true,

@@ -1,25 +1,28 @@
-import { useDestroyAction, useEditNavigation } from "#/lib/hooks.ts";
+import { useDestroyAction, useEditAction } from "#/lib/actions.ts";
+import { getContactQuery } from "#/lib/queries.ts";
 import { FavoriteSchema } from "#/lib/schemas.ts";
-import { getContact, toggleFavorite } from "#/lib/server-fns.ts";
+import { toggleFavorite } from "#/lib/server-fns.ts";
 import * as s from "@remix-run/data-schema";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
-import { useActionState, useOptimistic, useState } from "react";
+import { use, useActionState, useOptimistic, useState } from "react";
 
 export let Route = createFileRoute("/contact/$id")({
-    async loader({ params }) {
-        let contact = await getContact({ data: params.id });
+    async loader({ context: { queryClient }, params }) {
+        let contact = await queryClient.ensureQueryData(getContactQuery(params.id));
         if (!contact) throw notFound();
-        return contact;
     },
     component: ShowContact,
 });
 
 function ShowContact() {
-    let contact = Route.useLoaderData();
-    let hasAvatar = Boolean(contact.avatar);
-
     let params = Route.useParams();
-    let navigateToEdit = useEditNavigation(params.id);
+    let { promise } = useQuery(getContactQuery(params.id));
+    let contact = use(promise);
+    if (!contact) throw notFound();
+
+    let hasAvatar = Boolean(contact.avatar);
+    let editAction = useEditAction(params.id);
     let destroyAction = useDestroyAction();
 
     return (
@@ -64,7 +67,7 @@ function ShowContact() {
                 {contact.notes && <p>{contact.notes}</p>}
 
                 <div>
-                    <form action={navigateToEdit}>
+                    <form action={editAction}>
                         <button type="submit">Edit</button>
                     </form>
                     <form action={destroyAction} className="destroy-form">

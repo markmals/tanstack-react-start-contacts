@@ -1,13 +1,15 @@
-import { useCancelHandler, useUpdateAction } from "#/lib/hooks.ts";
-import { getContact } from "#/lib/server-fns.ts";
+import { useUpdateAction } from "#/lib/actions.ts";
+import { useCancelHandler } from "#/lib/hooks.ts";
+import { getContactQuery } from "#/lib/queries.ts";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { use } from "react";
 
 export let Route = createFileRoute("/contact/$id/edit")({
     loader: {
-        handler: async ({ params }) => {
-            let contact = await getContact({ data: params.id });
+        handler: async ({ context: { queryClient }, params }) => {
+            let contact = await queryClient.ensureQueryData(getContactQuery(params.id));
             if (!contact) throw notFound();
-            return contact;
         },
         staleReloadMode: "blocking",
     },
@@ -15,8 +17,10 @@ export let Route = createFileRoute("/contact/$id/edit")({
 });
 
 function EditContact() {
-    let contact = Route.useLoaderData();
     let params = Route.useParams();
+    let { promise } = useQuery(getContactQuery(params.id));
+    let contact = use(promise);
+    if (!contact) throw notFound();
 
     let updateAction = useUpdateAction();
     let handleCancel = useCancelHandler(params.id);

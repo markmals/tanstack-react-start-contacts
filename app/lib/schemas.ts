@@ -1,19 +1,20 @@
+import { assert } from "@remix-run/assert";
 import * as s from "@remix-run/data-schema";
+import * as checks from "@remix-run/data-schema/checks";
 import * as coerce from "@remix-run/data-schema/coerce";
 import * as f from "@remix-run/data-schema/form-data";
-import assert from "node:assert";
 
 export let QuerySchema = s.object({
     q: s.optional(s.string()),
 });
 
 export let FavoriteSchema = f.object({
-    id: f.field(coerce.number()),
+    id: f.field(s.string()),
     favorite: f.field(coerce.boolean()),
 });
 
 export let UpdateSchema = f.object({
-    id: f.field(coerce.number()),
+    id: f.field(s.string()),
     first: f.field(s.defaulted(s.string(), "")),
     last: f.field(s.defaulted(s.string(), "")),
     avatar: f.field(s.union([s.string(), s.undefined_()])),
@@ -21,7 +22,7 @@ export let UpdateSchema = f.object({
     notes: f.field(s.defaulted(s.string(), "")),
 });
 
-export let IdSchema = f.object({ id: f.field(coerce.number()) });
+export let IdSchema = f.object({ id: f.field(s.string()) });
 
 export function fromInput<Input>() {
     return <Output>(schema: s.Schema<unknown, Output>) =>
@@ -35,15 +36,19 @@ export function fromSearch<Result extends Record<string, unknown>>() {
             s.parse(schema, search);
 }
 
-let EnvSchema = s.object({});
+let EnvSchema = s.object({
+    DEV: s.boolean(),
+    SSR: s.boolean(),
+    VITE_CONVEX_URL: s.string().pipe(checks.url()),
+});
 
-export function parseEnv() {
-    let env = s.parseSafe(EnvSchema, process.env);
+export function parseEnv(env: Record<string, unknown>) {
+    let parsed = s.parseSafe(EnvSchema, env);
     let Path = s.optional(s.array(s.string()));
-    let issues = !env.success
-        ? env.issues.map(e => s.parse(Path, e.path)?.join(" ")).filter(Boolean)
+    let issues = !parsed.success
+        ? parsed.issues.map(e => s.parse(Path, e.path)?.join(" ")).filter(Boolean)
         : [];
-    let value = env.success ? env.value : null;
+    let value = parsed.success ? parsed.value : null;
 
     assert(value, `\n\nMust provide the following environment variables:\n${issues.join("\n")}\n`);
 

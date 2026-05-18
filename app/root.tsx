@@ -1,15 +1,25 @@
-import { Outlet, createRootRoute, Scripts, Link, useRouterState } from "@tanstack/react-router";
+import { useQuery, type QueryClient } from "@tanstack/react-query";
+import {
+    Outlet,
+    Scripts,
+    Link,
+    createRootRouteWithContext,
+    useRouterState,
+} from "@tanstack/react-router";
+import { use } from "react";
 
 import styles from "./index.css?url";
-import { useCreateAction, useSearchHandler } from "./lib/hooks.ts";
+import { useCreateAction } from "./lib/actions.ts";
+import { useSearchHandler } from "./lib/hooks.ts";
 import { useHref } from "./lib/href.ts";
+import { listContactsQuery } from "./lib/queries.ts";
 import { QuerySchema, fromSearch } from "./lib/schemas.ts";
-import { getContacts } from "./lib/server-fns.ts";
 
-export let Route = createRootRoute({
+export let Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
     validateSearch: fromSearch<{ q?: string }>()(QuerySchema),
     loaderDeps: ({ search: { q } }) => ({ q }),
-    loader: async ({ deps: { q } }) => ({ contacts: await getContacts({ data: { q } }), query: q }),
+    loader: ({ context: { queryClient }, deps: { q } }) =>
+        queryClient.ensureQueryData(listContactsQuery(q)),
     component: Root,
 });
 
@@ -32,16 +42,19 @@ function Root() {
 }
 
 function App() {
-    let { contacts, query } = Route.useLoaderData();
-    let { value, onInput } = useSearchHandler(query);
+    let { q } = Route.useLoaderDeps();
+    let { promise } = useQuery(listContactsQuery(q));
+    let contacts = use(promise);
+
+    let { value, onInput } = useSearchHandler(q);
 
     let { isLoading, location, resolvedLocation } = useRouterState();
     let isNavigating = isLoading && location.pathname !== resolvedLocation?.pathname;
     let searching = isLoading && !isNavigating;
     let pendingContactPath = isNavigating ? location.pathname : undefined;
 
-    let resultsLabel = query
-        ? `${contacts.length} result${contacts.length === 1 ? "" : "s"} for "${query}"`
+    let resultsLabel = q
+        ? `${contacts.length} result${contacts.length === 1 ? "" : "s"} for "${q}"`
         : "";
 
     let createAction = useCreateAction();
@@ -77,15 +90,15 @@ function App() {
                             {contacts.map(contact => {
                                 let url = useHref({
                                     to: "/contact/$id",
-                                    params: { id: String(contact.id) },
+                                    params: { id: contact._id },
                                 });
                                 let isPending = pendingContactPath === url;
                                 return (
-                                    <li key={contact.id}>
+                                    <li key={contact._id}>
                                         <Link
                                             activeProps={isPending ? {} : { className: "active" }}
                                             className={isPending ? "pending" : undefined}
-                                            params={{ id: String(contact.id) }}
+                                            params={{ id: contact._id }}
                                             to="/contact/$id"
                                         >
                                             {contact.first || contact.last ? (

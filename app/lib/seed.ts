@@ -1,4 +1,6 @@
-import { db } from "./contacts.ts";
+import { api } from "#convex/_generated/api.js";
+
+import { createConvexHttpClient } from "./convex.ts";
 
 const SEED_CONTACTS = [
     {
@@ -34,21 +36,14 @@ const SEED_CONTACTS = [
 ];
 
 export async function seedDatabase() {
-    let count = await db.contacts.count;
-    if (count > 0) {
-        console.log(`Seed skipped: ${count} contact(s) already present.`);
-        return;
-    }
+    let convex = createConvexHttpClient();
+    let inserted = await convex.mutation(api.contacts.seed, {
+        contacts: SEED_CONTACTS.map(c => ({ ...c, notes: "" })),
+    });
 
-    for (let contact of SEED_CONTACTS) {
-        await db.contacts.create({
-            first: contact.first,
-            last: contact.last,
-            avatar: contact.avatar,
-            bsky: contact.bsky,
-            notes: "",
-        });
+    if (inserted === 0) {
+        console.log("Seed skipped: contacts already present.");
+    } else {
+        console.log(`Seeded ${inserted} contact(s).`);
     }
-
-    console.log(`Seeded ${SEED_CONTACTS.length} contact(s).`);
 }

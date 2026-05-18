@@ -1,41 +1,53 @@
-import * as coerce from "@remix-run/data-schema/coerce";
+import type { Id } from "#convex/_generated/dataModel.js";
+
+import { api } from "#convex/_generated/api.js";
 import { notFound, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
-import { db } from "./contacts.ts";
-import { FavoriteSchema, IdSchema, QuerySchema, UpdateSchema, fromInput } from "./schemas.ts";
+import { createConvexHttpClient } from "./convex.ts";
+import { FavoriteSchema, IdSchema, UpdateSchema, fromInput } from "./schemas.ts";
 
-export let getContacts = createServerFn({ method: "GET" })
-    .inputValidator(fromInput<{ q?: string }>()(QuerySchema))
-    .handler(({ data }) => db.contacts.list(data.q));
+function contactId(value: string): Id<"contacts"> {
+    return value as Id<"contacts">;
+}
 
 export let createContact = createServerFn({ method: "POST" }).handler(async () => {
-    let id = await db.contacts.createEmpty();
-    throw redirect({ to: "/contact/$id/edit", params: { id: String(id) } });
+    let convex = createConvexHttpClient();
+    let id = await convex.mutation(api.contacts.createEmpty, {});
+    throw redirect({ to: "/contact/$id/edit", params: { id } });
 });
-
-export let getContact = createServerFn({ method: "GET" })
-    .inputValidator(fromInput<string>()(coerce.number()))
-    .handler(({ data: id }) => db.contacts.show(id));
 
 export let toggleFavorite = createServerFn({ method: "POST" })
     .inputValidator(fromInput<FormData>()(FavoriteSchema))
     .handler(async ({ data }) => {
-        let updated = await db.contacts.update(data.id, { favorite: data.favorite });
+        let convex = createConvexHttpClient();
+        let updated = await convex.mutation(api.contacts.update, {
+            id: contactId(data.id),
+            favorite: data.favorite,
+        });
         if (!updated) throw notFound();
     });
 
 export let destroyContact = createServerFn({ method: "POST" })
     .inputValidator(fromInput<FormData>()(IdSchema))
     .handler(async ({ data }) => {
-        await db.contacts.destroy(data.id);
+        let convex = createConvexHttpClient();
+        await convex.mutation(api.contacts.destroy, { id: contactId(data.id) });
         throw redirect({ to: "/" });
     });
 
 export let editContact = createServerFn({ method: "POST" })
     .inputValidator(fromInput<FormData>()(UpdateSchema))
     .handler(async ({ data }) => {
-        let updated = await db.contacts.update(data.id, data);
+        let convex = createConvexHttpClient();
+        let updated = await convex.mutation(api.contacts.update, {
+            id: contactId(data.id),
+            first: data.first,
+            last: data.last,
+            avatar: data.avatar,
+            bsky: data.bsky,
+            notes: data.notes,
+        });
         if (!updated) throw notFound();
-        throw redirect({ to: "/contact/$id", params: { id: String(data.id) } });
+        throw redirect({ to: "/contact/$id", params: { id: data.id } });
     });

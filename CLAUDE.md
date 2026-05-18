@@ -11,7 +11,7 @@
 
 - Use `vpx` (`vp exec`) for running packages, locally and remotely, instead of `npx` or `pnpm exec`/`pnpm dlx`
 - Use `vpr` (`vp run`) for running the Vite+ tasks defined in `vite.config.ts`
-- Run `vpr typecheck` periodically to verify your work
+- Run `vpr typecheck` (or `vpx tsgo --noEmit`) periodically to verify your work
 - Run quality gates via `vpr check` before committing
 - Periodically run `vpr check` and fix all info, warnings, and errors
 - Use JSDoc/TSDoc comments for public APIs
@@ -33,7 +33,7 @@
 - **Arrays = `T[]`** – use shorthand array syntax consistently.
 - **Favor `let`** – use `let` over `const` for bindings, unless declaring a truly top-level constant. Then declare it with an all caps binding as a `const`.
 - **One `let` per line** – declare variables individually.
-- **Skip non-null assertions** – rewrite code so `!` isn't necessary; consider using `@remix-run/data-schema` or `node:assert` where you might want to use `!`.
+- **Skip non-null assertions** – rewrite code so `!` isn't necessary; consider using `@remix-run/data-schema` and/or `@remix-run/assert` where you might want to use `!`.
 - **Avoid `enum`** – choose discriminated unions, objects, or literal types instead.
 - **Stick with `trimStart/End`** – don't use `trimLeft/Right`.
 - **Default parameters go last** – never precede required params with optional ones.

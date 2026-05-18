@@ -29,14 +29,20 @@ export default defineConfig({
     run: {
         tasks: {
             dev: {
-                dependsOn: ["db:bootstrap"],
+                dependsOn: ["dev:convex", "dev:vite"],
+                command: "",
+            },
+            "dev:vite": {
                 command: "vp dev",
+            },
+            "dev:convex": {
+                command: "convex dev",
+                cache: false,
             },
             build: {
                 command: "vp build",
             },
             preview: {
-                dependsOn: ["db:migrations:apply:local"],
                 command: "vp preview",
             },
             fmt: {
@@ -48,41 +54,29 @@ export default defineConfig({
             "typegen:cloudflare": {
                 command: "wrangler types",
             },
+            "typegen:convex": {
+                command: "convex codegen --typecheck disable",
+            },
             typecheck: {
-                dependsOn: ["typegen:cloudflare"],
+                dependsOn: ["typegen:cloudflare", "typegen:convex"],
                 command: "tsgo --noEmit",
             },
             check: {
                 dependsOn: ["fmt", "lint", "typecheck"],
                 command: "echo 'All quality gates run'",
             },
-            "db:bootstrap": {
-                dependsOn: ["db:reset", "db:migrations:generate"],
-                command: "wrangler d1 migrations apply contacts --local",
-            },
-            "db:reset": {
-                command: "rm -rf .wrangler/state/v3/d1",
-            },
-            "db:migrations:generate": {
-                command: "drizzle-kit generate",
-            },
-            "db:migrations:apply:local": {
-                dependsOn: ["db:migrations:generate"],
-                command: "wrangler d1 migrations apply contacts --local",
-            },
-            // "db:migrations:apply:remote": {
-            //     command: "wrangler d1 migrations apply contacts --remote",
-            //     cache: false,
-            // },
-            // "db:migrations:deploy": {
-            //     dependsOn: ["db:migrations:generate"],
-            //     command: "wrangler d1 migrations apply contacts --remote",
-            //     cache: false,
-            // },
             // deploy: {
+            //     dependsOn: ["deploy:cloudflare", "deploy:convex"],
+            //     command: "Deployed! 🎉",
+            // },
+            // "deploy:cloudflare": {
             //     command: "wrangler deploy",
             //     cache: false,
-            // }
+            // },
+            // "deploy:convex": {
+            //     command: "convex deploy",
+            //     cache: false,
+            // },
         },
     },
     fmt: {
