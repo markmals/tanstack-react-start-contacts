@@ -1,17 +1,12 @@
 import { useSuspenseQuery, type QueryClient } from "@tanstack/react-query";
-import {
-    Outlet,
-    Scripts,
-    Link,
-    createRootRouteWithContext,
-    useRouterState,
-} from "@tanstack/react-router";
+import { Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 
 import styles from "./index.css?url";
-import { useCreateForm } from "./lib/data/forms.ts";
+import { NewButton } from "./lib/components/buttons.tsx";
+import { Details } from "./lib/components/details.tsx";
+import { SearchForm } from "./lib/components/forms.tsx";
+import { SidebarItem } from "./lib/components/sidebar-item.tsx";
 import { listContactsQuery } from "./lib/data/queries.ts";
-import { useSearchHandler } from "./lib/hooks.ts";
-import { useHref } from "./lib/href.ts";
 import { QuerySchema, fromSearch } from "./lib/schemas.ts";
 
 export let Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -44,73 +39,20 @@ function App() {
     let { q } = Route.useLoaderDeps();
     let { data: contacts } = useSuspenseQuery(listContactsQuery(q));
 
-    let { value, onInput } = useSearchHandler(q);
-
-    let { isLoading, location, resolvedLocation } = useRouterState();
-    let isNavigating = isLoading && location.pathname !== resolvedLocation?.pathname;
-    let searching = isLoading && !isNavigating;
-    let pendingContactPath = isNavigating ? location.pathname : undefined;
-
-    let resultsLabel = q
-        ? `${contacts.length} result${contacts.length === 1 ? "" : "s"} for "${q}"`
-        : "";
-
-    let create = useCreateForm();
-
     return (
         <div id="root">
             <div id="sidebar">
                 <h1>TanStack Contacts</h1>
                 <div>
-                    <form id="search-form" method="get" onSubmit={e => e.preventDefault()}>
-                        <input
-                            aria-label="Search contacts"
-                            className={searching ? "loading" : ""}
-                            id="q"
-                            name="q"
-                            onInput={onInput}
-                            placeholder="Search"
-                            type="search"
-                            value={value}
-                        />
-                        <div aria-hidden hidden={!searching} id="search-spinner" />
-                        <div aria-live="polite" className="sr-only">
-                            {searching ? "" : resultsLabel}
-                        </div>
-                    </form>
-                    <form {...create}>
-                        <button type="submit">New</button>
-                    </form>
+                    <SearchForm query={q} results={contacts.length} />
+                    <NewButton />
                 </div>
                 <nav>
                     {contacts.length ? (
                         <ul>
-                            {contacts.map(contact => {
-                                let url = useHref({
-                                    to: "/contact/$id",
-                                    params: { id: contact._id },
-                                });
-                                let isPending = pendingContactPath === url;
-                                return (
-                                    <li key={contact._id}>
-                                        <Link
-                                            activeProps={isPending ? {} : { className: "active" }}
-                                            className={isPending ? "pending" : undefined}
-                                            params={{ id: contact._id }}
-                                            to="/contact/$id"
-                                        >
-                                            {contact.first || contact.last ? (
-                                                <>
-                                                    {contact.first} {contact.last}
-                                                </>
-                                            ) : (
-                                                <i>No Name</i>
-                                            )}
-                                            {contact.favorite && <span>★</span>}
-                                        </Link>
-                                    </li>
-                                );
-                            })}
+                            {contacts.map(contact => (
+                                <SidebarItem contact={contact} />
+                            ))}
                         </ul>
                     ) : (
                         <p>
@@ -119,9 +61,7 @@ function App() {
                     )}
                 </nav>
             </div>
-            <div className={isNavigating ? "loading" : ""} id="detail">
-                <Outlet />
-            </div>
+            <Details />
         </div>
     );
 }

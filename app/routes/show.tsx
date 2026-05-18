@@ -1,4 +1,4 @@
-import { useDestroyForm, useEditForm, useFavoriteForm } from "#/lib/data/forms.ts";
+import { DeleteButton, EditButton, FavoriteButton } from "#/lib/components/buttons.tsx";
 import { getContactQuery } from "#/lib/data/queries.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
@@ -17,8 +17,6 @@ function ShowContact() {
     if (!contact) throw notFound();
 
     let hasAvatar = Boolean(contact.avatar);
-    let edit = useEditForm(params.id);
-    let destroy = useDestroyForm();
 
     return (
         <div id="contact">
@@ -62,13 +60,8 @@ function ShowContact() {
                 {contact.notes && <p>{contact.notes}</p>}
 
                 <div>
-                    <form {...edit}>
-                        <button type="submit">Edit</button>
-                    </form>
-                    <form {...destroy} className="destroy-form">
-                        <input name="id" type="hidden" value={params.id} />
-                        <button type="submit">Delete</button>
-                    </form>
+                    <EditButton id={params.id} />
+                    <DeleteButton className="destroy-form" id={params.id} />
                 </div>
             </div>
         </div>
@@ -76,13 +69,12 @@ function ShowContact() {
 }
 
 function Favorite(props: { favorite: boolean; id: string }) {
-    let next = !props.favorite;
-    let favorite = useFavoriteForm(props.id, next);
+    let nextValue = !props.favorite;
 
     return (
-        <form {...favorite}>
+        <FavoriteButton id={props.id} next={nextValue}>
             <input name="id" type="hidden" value={props.id} />
-            <input name="favorite" type="hidden" value={next ? "true" : "false"} />
+            <input name="favorite" type="hidden" value={nextValue ? "true" : "false"} />
             <button
                 aria-label={props.favorite ? "Remove from favorites" : "Add to favorites"}
                 data-favorited={props.favorite}
@@ -90,6 +82,6 @@ function Favorite(props: { favorite: boolean; id: string }) {
             >
                 {props.favorite ? "★" : "☆"}
             </button>
-        </form>
+        </FavoriteButton>
     );
 }

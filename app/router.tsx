@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 
-import { QueryClientProvider, dehydrate, hydrate } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { ConvexProvider } from "convex/react";
@@ -22,7 +22,7 @@ export function getRouter() {
     function Wrap({ children }: PropsWithChildren) {
         return (
             <ConvexProvider client={convex}>
-                <QueryClientProvider children={children} client={queryClient} />
+                <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
             </ConvexProvider>
         );
     }
@@ -33,13 +33,6 @@ export function getRouter() {
         defaultPreload: "intent",
         context: { queryClient },
         Wrap,
-        // The router's serializer doesn't recognize react-query's DehydratedState
-        // shape (it contains `unknown[]` keys), so we move it across the SSR/CSR
-        // boundary as a JSON string — DehydratedState is JSON-safe by design.
-        dehydrate: () => ({ queryClientState: JSON.stringify(dehydrate(queryClient)) }),
-        hydrate: (dehydrated: { queryClientState: string }) => {
-            hydrate(queryClient, JSON.parse(dehydrated.queryClientState));
-        },
     });
 
     setupRouterSsrQueryIntegration({

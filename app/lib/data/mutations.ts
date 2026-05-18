@@ -7,10 +7,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { FavoriteSchema, IdSchema, UpdateSchema, fromInput } from "../schemas.ts";
 import { createConvexHttpClient } from "./convex.ts";
 
-function contactId(value: string): Id<"contacts"> {
-    return value as Id<"contacts">;
-}
-
 export let createContact = createServerFn({ method: "POST" }).handler(async () => {
     let convex = createConvexHttpClient();
     let id = await convex.mutation(api.contacts.createEmpty, {});
@@ -22,7 +18,7 @@ export let toggleFavorite = createServerFn({ method: "POST" })
     .handler(async ({ data }) => {
         let convex = createConvexHttpClient();
         let updated = await convex.mutation(api.contacts.update, {
-            id: contactId(data.id),
+            id: data.id as Id<"contacts">,
             favorite: data.favorite,
         });
         if (!updated) throw notFound();
@@ -33,7 +29,7 @@ export let destroyContact = createServerFn({ method: "POST" })
     .inputValidator(fromInput<FormData>()(IdSchema))
     .handler(async ({ data }) => {
         let convex = createConvexHttpClient();
-        await convex.mutation(api.contacts.destroy, { id: contactId(data.id) });
+        await convex.mutation(api.contacts.destroy, { id: data.id as Id<"contacts"> });
         throw redirect({ to: "/" });
     });
 
@@ -42,7 +38,7 @@ export let updateContact = createServerFn({ method: "POST" })
     .handler(async ({ data }) => {
         let convex = createConvexHttpClient();
         let updated = await convex.mutation(api.contacts.update, {
-            id: contactId(data.id),
+            id: data.id as Id<"contacts">,
             first: data.first,
             last: data.last,
             avatar: data.avatar,

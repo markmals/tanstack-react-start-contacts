@@ -1,6 +1,6 @@
-import { useUpdateForm } from "#/lib/data/forms.ts";
+import { CancelButton } from "#/lib/components/buttons.tsx";
+import { EditContactForm } from "#/lib/components/forms.tsx";
 import { getContactQuery } from "#/lib/data/queries.ts";
-import { useCancelHandler } from "#/lib/hooks.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 
@@ -20,11 +20,8 @@ function EditContact() {
     let { data: contact } = useSuspenseQuery(getContactQuery(params.id));
     if (!contact) throw notFound();
 
-    let update = useUpdateForm();
-    let handleCancel = useCancelHandler(params.id);
-
     return (
-        <form {...update} id="contact-form">
+        <EditContactForm id="contact-form">
             <title>{`Editing ${contact.first} ${contact.last} | TanStack Contacts`}</title>
             <input name="id" type="hidden" value={params.id} />
             <p>
@@ -71,10 +68,8 @@ function EditContact() {
             </label>
             <p>
                 <button type="submit">Save</button>
-                <button onClick={handleCancel} type="button">
-                    Cancel
-                </button>
+                <CancelButton id={params.id} />
             </p>
-        </form>
+        </EditContactForm>
     );
 }
