@@ -1,9 +1,8 @@
 import { useUpdateForm } from "#/lib/data/forms.ts";
 import { getContactQuery } from "#/lib/data/queries.ts";
 import { useCancelHandler } from "#/lib/hooks.ts";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { use } from "react";
 
 export let Route = createFileRoute("/contact/$id/edit")({
     loader: {
@@ -18,8 +17,7 @@ export let Route = createFileRoute("/contact/$id/edit")({
 
 function EditContact() {
     let params = Route.useParams();
-    let { promise } = useQuery(getContactQuery(params.id));
-    let contact = use(promise);
+    let { data: contact } = useSuspenseQuery(getContactQuery(params.id));
     if (!contact) throw notFound();
 
     let update = useUpdateForm();

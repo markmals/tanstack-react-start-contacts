@@ -1,8 +1,7 @@
 import { useDestroyForm, useEditForm, useFavoriteForm } from "#/lib/data/forms.ts";
 import { getContactQuery } from "#/lib/data/queries.ts";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { use } from "react";
 
 export let Route = createFileRoute("/contact/$id")({
     async loader({ context: { queryClient }, params }) {
@@ -14,8 +13,7 @@ export let Route = createFileRoute("/contact/$id")({
 
 function ShowContact() {
     let params = Route.useParams();
-    let { promise } = useQuery(getContactQuery(params.id));
-    let contact = use(promise);
+    let { data: contact } = useSuspenseQuery(getContactQuery(params.id));
     if (!contact) throw notFound();
 
     let hasAvatar = Boolean(contact.avatar);

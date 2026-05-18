@@ -1,4 +1,4 @@
-import { useQuery, type QueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, type QueryClient } from "@tanstack/react-query";
 import {
     Outlet,
     Scripts,
@@ -6,7 +6,6 @@ import {
     createRootRouteWithContext,
     useRouterState,
 } from "@tanstack/react-router";
-import { use } from "react";
 
 import styles from "./index.css?url";
 import { useCreateForm } from "./lib/data/forms.ts";
@@ -43,8 +42,7 @@ function Root() {
 
 function App() {
     let { q } = Route.useLoaderDeps();
-    let { promise } = useQuery(listContactsQuery(q));
-    let contacts = use(promise);
+    let { data: contacts } = useSuspenseQuery(listContactsQuery(q));
 
     let { value, onInput } = useSearchHandler(q);
 
