@@ -57,9 +57,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.3
         version: 19.2.3(@types/react@19.2.14)
-      '@types/sort-by':
-        specifier: ^1.2.3
-        version: 1.2.3
       '@typescript/native-preview':
         specifier: latest
         version: 7.0.0-dev.20260516.1
@@ -1744,9 +1741,6 @@ packages:
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
-
-  '@types/sort-by@1.2.3':
-    resolution: {integrity: sha512-Q8Pg7o2iHWFf7pR4jIGb+ntxwwL7a/WWLFNJj8jEN14tPQdfwZLCqK68q6mo1WONqa68OysEPuFvNA3uGm0crw==}
 
   '@typescript-eslint/project-service@8.59.3':
     resolution: {integrity: sha512-ECiUWa/KYRGDFUqTNehaRgzDshnJfkTABJxVemHk4ko22gcr0ukloKjWvyQ64g8YCV/UI47kN1dbmjf/GaQYng==}
@@ -4170,8 +4164,6 @@ snapshots:
   '@types/react@19.2.14':
     dependencies:
       csstype: 3.2.3
-
-  '@types/sort-by@1.2.3': {}
 
   '@typescript-eslint/project-service@8.59.3(typescript@6.0.3)':
     dependencies:
