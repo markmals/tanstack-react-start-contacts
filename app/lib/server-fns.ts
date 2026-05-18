@@ -26,6 +26,7 @@ export let toggleFavorite = createServerFn({ method: "POST" })
             favorite: data.favorite,
         });
         if (!updated) throw notFound();
+        throw redirect({ to: "/contact/$id", params: { id: updated._id } });
     });
 
 export let destroyContact = createServerFn({ method: "POST" })

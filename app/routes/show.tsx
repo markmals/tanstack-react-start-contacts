@@ -1,11 +1,8 @@
-import { useDestroyAction, useEditAction } from "#/lib/actions.ts";
+import { useDestroyForm, useEditForm, useFavoriteForm } from "#/lib/forms.ts";
 import { getContactQuery } from "#/lib/queries.ts";
-import { FavoriteSchema } from "#/lib/schemas.ts";
-import { toggleFavorite } from "#/lib/server-fns.ts";
-import * as s from "@remix-run/data-schema";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
-import { use, useActionState, useOptimistic, useState } from "react";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { use } from "react";
 
 export let Route = createFileRoute("/contact/$id")({
     async loader({ context: { queryClient }, params }) {
@@ -22,8 +19,8 @@ function ShowContact() {
     if (!contact) throw notFound();
 
     let hasAvatar = Boolean(contact.avatar);
-    let editAction = useEditAction(params.id);
-    let destroyAction = useDestroyAction();
+    let edit = useEditForm(params.id);
+    let destroy = useDestroyForm();
 
     return (
         <div id="contact">
@@ -67,10 +64,10 @@ function ShowContact() {
                 {contact.notes && <p>{contact.notes}</p>}
 
                 <div>
-                    <form action={editAction}>
+                    <form {...edit}>
                         <button type="submit">Edit</button>
                     </form>
-                    <form action={destroyAction} className="destroy-form">
+                    <form {...destroy} className="destroy-form">
                         <input name="id" type="hidden" value={params.id} />
                         <button type="submit">Delete</button>
                     </form>
@@ -81,32 +78,19 @@ function ShowContact() {
 }
 
 function Favorite(props: { favorite: boolean; id: string }) {
-    let router = useRouter();
-    // Local base, committed inside the action, prevents an optimistic-to-stale-prop flash on revalidate.
-    let [committed, setCommitted] = useState(props.favorite);
-    let [favorited, setFavorite] = useOptimistic(committed);
-    let [, action] = useActionState(
-        async (_state: void, formData: FormData) => {
-            let { favorite } = s.parse(FavoriteSchema, formData);
-            setFavorite(favorite);
-            await toggleFavorite({ data: formData });
-            setCommitted(favorite);
-            await router.invalidate();
-        },
-        undefined,
-        toggleFavorite.url,
-    );
+    let next = !props.favorite;
+    let favorite = useFavoriteForm(props.id, next);
 
     return (
-        <form action={action}>
+        <form {...favorite}>
             <input name="id" type="hidden" value={props.id} />
-            <input name="favorite" type="hidden" value={favorited ? "false" : "true"} />
+            <input name="favorite" type="hidden" value={next ? "true" : "false"} />
             <button
-                aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
-                data-favorited={favorited}
+                aria-label={props.favorite ? "Remove from favorites" : "Add to favorites"}
+                data-favorited={props.favorite}
                 type="submit"
             >
-                {favorited ? "★" : "☆"}
+                {props.favorite ? "★" : "☆"}
             </button>
         </form>
     );

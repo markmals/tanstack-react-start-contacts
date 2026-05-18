@@ -9,7 +9,7 @@ import {
 import { use } from "react";
 
 import styles from "./index.css?url";
-import { useCreateAction } from "./lib/actions.ts";
+import { useCreateForm } from "./lib/forms.ts";
 import { useSearchHandler } from "./lib/hooks.ts";
 import { useHref } from "./lib/href.ts";
 import { listContactsQuery } from "./lib/queries.ts";
@@ -57,7 +57,7 @@ function App() {
         ? `${contacts.length} result${contacts.length === 1 ? "" : "s"} for "${q}"`
         : "";
 
-    let createAction = useCreateAction();
+    let create = useCreateForm();
 
     return (
         <div id="root">
@@ -80,7 +80,7 @@ function App() {
                             {searching ? "" : resultsLabel}
                         </div>
                     </form>
-                    <form action={createAction}>
+                    <form {...create}>
                         <button type="submit">New</button>
                     </form>
                 </div>

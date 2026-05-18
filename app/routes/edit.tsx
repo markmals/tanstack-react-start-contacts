@@ -1,4 +1,4 @@
-import { useUpdateAction } from "#/lib/actions.ts";
+import { useUpdateForm } from "#/lib/forms.ts";
 import { useCancelHandler } from "#/lib/hooks.ts";
 import { getContactQuery } from "#/lib/queries.ts";
 import { useQuery } from "@tanstack/react-query";
@@ -22,11 +22,11 @@ function EditContact() {
     let contact = use(promise);
     if (!contact) throw notFound();
 
-    let updateAction = useUpdateAction();
+    let update = useUpdateForm();
     let handleCancel = useCancelHandler(params.id);
 
     return (
-        <form action={updateAction} id="contact-form">
+        <form {...update} id="contact-form">
             <title>{`Editing ${contact.first} ${contact.last} | TanStack Contacts`}</title>
             <input name="id" type="hidden" value={params.id} />
             <p>

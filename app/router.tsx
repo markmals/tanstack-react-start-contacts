@@ -3,6 +3,7 @@ import type { PropsWithChildren } from "react";
 import { QueryClientProvider, dehydrate, hydrate } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
+import { ConvexProvider } from "convex/react";
 
 import { createConvexQueryClient } from "./lib/convex.ts";
 import { parseEnv } from "./lib/schemas.ts";
@@ -16,10 +17,14 @@ if (DEV && SSR) {
 }
 
 export function getRouter() {
-    let { queryClient } = createConvexQueryClient();
+    let { convex, queryClient } = createConvexQueryClient();
 
     function Wrap({ children }: PropsWithChildren) {
-        return <QueryClientProvider children={children} client={queryClient} />;
+        return (
+            <ConvexProvider client={convex}>
+                <QueryClientProvider children={children} client={queryClient} />
+            </ConvexProvider>
+        );
     }
 
     let router = createRouter({
