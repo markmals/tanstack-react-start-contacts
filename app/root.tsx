@@ -2,6 +2,7 @@ import { Outlet, createRootRoute, Scripts, Link, useRouterState } from "@tanstac
 
 import styles from "./index.css?url";
 import { useCreateAction, useSearchHandler } from "./lib/hooks.ts";
+import { useHref } from "./lib/href.ts";
 import { QuerySchema, fromSearch } from "./lib/schemas.ts";
 import { getContacts } from "./lib/server-fns.ts";
 
@@ -74,7 +75,11 @@ function App() {
                     {contacts.length ? (
                         <ul>
                             {contacts.map(contact => {
-                                let isPending = pendingContactPath === `/contact/${contact.id}`;
+                                let url = useHref({
+                                    to: "/contact/$id",
+                                    params: { id: String(contact.id) },
+                                });
+                                let isPending = pendingContactPath === url;
                                 return (
                                     <li key={contact.id}>
                                         <Link
