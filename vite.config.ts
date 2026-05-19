@@ -74,7 +74,7 @@ export default defineConfig({
             },
             // deploy: {
             //     dependsOn: ["deploy:cloudflare", "deploy:convex"],
-            //     command: "Deployed! 🎉",
+            //     command: "echo 'Deployed! 🎉'",
             // },
             // "deploy:cloudflare": {
             //     command: "wrangler deploy",
