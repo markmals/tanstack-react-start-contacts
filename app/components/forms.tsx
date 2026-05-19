@@ -15,6 +15,7 @@ export function EditContactForm(props: ComponentProps<"form">) {
                 await edit({ data: new FormData(event.currentTarget) });
             }}
             {...props}
+            className={`flex max-w-160 flex-col gap-4 ${props.className ?? ""}`}
         />
     );
 }
@@ -69,11 +70,11 @@ export function SearchForm({
     }
 
     return (
-        <form id="search-form" method="get" onSubmit={e => e.preventDefault()}>
+        <form className="relative" id="search-form" method="get" onSubmit={e => e.preventDefault()}>
             <input
                 {...props}
                 aria-label="Search contacts"
-                className={searching ? "loading" : ""}
+                className={`w-full bg-no-repeat bg-size-[1rem] bg-position-[0.625rem_0.75rem] pl-8 ${searching ? "" : "search-icon"}`}
                 id="q"
                 name="q"
                 onInput={handleInput}
@@ -81,7 +82,12 @@ export function SearchForm({
                 type="search"
                 value={value}
             />
-            <div aria-hidden hidden={!searching} id="search-spinner" />
+            <div
+                aria-hidden
+                className="spinner-icon absolute left-2.5 top-3 h-4 w-4 animate-spin bg-no-repeat"
+                hidden={!searching}
+                id="search-spinner"
+            />
             <div aria-live="polite" className="sr-only">
                 {searching ? "" : resultsLabel}
             </div>

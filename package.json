@@ -26,6 +26,7 @@
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.29.0",
         "@rolldown/plugin-babel": "^0.2.1",
+        "@tailwindcss/vite": "^4.3.0",
         "@types/node": "^25.3.2",
         "@types/react": "^19.0.8",
         "@types/react-dom": "^19.0.3",
@@ -35,6 +36,7 @@
         "eslint-plugin-perfectionist": "^5.7.0",
         "eslint-plugin-prefer-let": "^4.2.2",
         "oxlint-tsgolint": "^0.17.2",
+        "tailwindcss": "^4.3.0",
         "vite": "npm:@voidzero-dev/vite-plus-core@latest",
         "vite-plugin-devtools-json": "^1.0.0",
         "vite-plus": "latest",

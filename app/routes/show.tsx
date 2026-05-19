@@ -19,11 +19,12 @@ function ShowContact() {
     let hasAvatar = Boolean(contact.avatar);
 
     return (
-        <div id="contact">
+        <div className="flex max-w-160">
             <title>{`${contact.first} ${contact.last} | TanStack Contacts`}</title>
             <div>
                 <img
                     alt=""
+                    className="mr-8 h-48 w-48 rounded-3xl bg-avatar object-cover"
                     key={contact.avatar}
                     src={
                         hasAvatar
@@ -34,20 +35,21 @@ function ShowContact() {
             </div>
 
             <div>
-                <h1>
+                <h1 className="m-0 flex items-start gap-4 text-[2rem] leading-[1.2] font-bold focus:text-primary focus:outline-none">
                     {contact.first || contact.last ? (
                         <>
                             {contact.first} {contact.last}
                         </>
                     ) : (
-                        <i>No Name</i>
+                        <i className="text-muted">No Name</i>
                     )}{" "}
                     <Favorite favorite={contact.favorite} id={params.id} key={params.id} />
                 </h1>
 
                 {contact.bsky && (
-                    <p>
+                    <p className="m-0">
                         <a
+                            className="flex text-2xl text-bsky no-underline hover:underline"
                             href={`https://bsky.app/profile/${contact.bsky}`}
                             rel="noreferrer"
                             target="_blank"
@@ -57,11 +59,11 @@ function ShowContact() {
                     </p>
                 )}
 
-                {contact.notes && <p>{contact.notes}</p>}
+                {contact.notes && <p className="whitespace-break-spaces">{contact.notes}</p>}
 
-                <div>
+                <div className="my-4 flex gap-2">
                     <EditButton id={params.id} />
-                    <DeleteButton className="destroy-form" id={params.id} />
+                    <DeleteButton id={params.id} />
                 </div>
             </div>
         </div>
@@ -77,6 +79,7 @@ function Favorite(props: { favorite: boolean; id: string }) {
             <input name="favorite" type="hidden" value={nextValue ? "true" : "false"} />
             <button
                 aria-label={props.favorite ? "Remove from favorites" : "Add to favorites"}
+                className="p-0 text-2xl font-normal shadow-none data-[favorited=false]:text-unfavorited data-[favorited=false]:hover:text-favorite data-[favorited=true]:text-favorite"
                 data-favorited={props.favorite}
                 type="submit"
             >

@@ -14,23 +14,32 @@ export function SidebarItem({ contact }: { contact: Doc<"contacts"> }) {
         params: { id: contact._id },
     });
     let isPending = pendingContactPath === url;
+    let isActive =
+        !isPending && (location.pathname === url || location.pathname.startsWith(`${url}/`));
+
+    let linkClass =
+        "flex items-center justify-between gap-4 overflow-hidden whitespace-pre rounded-lg p-2 no-underline";
+    if (isActive) {
+        linkClass += " bg-primary text-white hover:bg-primary";
+    } else if (isPending) {
+        linkClass += " text-primary";
+    } else {
+        linkClass += " text-inherit hover:bg-border";
+    }
 
     return (
-        <li key={contact._id}>
-            <Link
-                activeProps={isPending ? {} : { className: "active" }}
-                className={isPending ? "pending" : undefined}
-                params={{ id: contact._id }}
-                to="/contact/$id"
-            >
+        <li className="my-1">
+            <Link className={linkClass} params={{ id: contact._id }} to="/contact/$id">
                 {contact.first || contact.last ? (
                     <>
                         {contact.first} {contact.last}
                     </>
                 ) : (
-                    <i>No Name</i>
+                    <i className={isActive ? "" : "text-muted"}>No Name</i>
                 )}
-                {contact.favorite && <span>★</span>}
+                {contact.favorite && (
+                    <span className={`float-right ${isActive ? "" : "text-favorite"}`}>★</span>
+                )}
             </Link>
         </li>
     );
