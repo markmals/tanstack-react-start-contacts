@@ -43,7 +43,9 @@ export function DeleteButton(props: ComponentProps<"form"> & { id: string }) {
             {...props}
         >
             <input name="id" type="hidden" value={props.id} />
-            <button type="submit">Delete</button>
+            <button className="text-destroy" type="submit">
+                Delete
+            </button>
         </form>
     );
 }
@@ -88,6 +90,7 @@ export function FavoriteButton(props: ComponentProps<"form"> & { id: string; nex
                 await toggle({ id: props.id as Id<"contacts">, favorite: props.next });
             }}
             {...props}
+            className={`mt-1 mb-0 flex items-center ${props.className ?? ""}`}
         />
     );
 }
@@ -106,7 +109,7 @@ export function CancelButton(props: ComponentProps<"button"> & { id: string }) {
     }
 
     return (
-        <button {...props} onClick={handleClick} type="button">
+        <button {...props} className="text-inherit" onClick={handleClick} type="button">
             Cancel
         </button>
     );

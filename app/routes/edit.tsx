@@ -24,10 +24,11 @@ function EditContact() {
         <EditContactForm id="contact-form">
             <title>{`Editing ${contact.first} ${contact.last} | TanStack Contacts`}</title>
             <input name="id" type="hidden" value={params.id} />
-            <p>
-                <span>Name</span>
+            <p className="m-0 flex p-0">
+                <span className="w-32">Name</span>
                 <input
                     aria-label="First name"
+                    className="mr-4 grow-2"
                     defaultValue={contact.first}
                     name="first"
                     placeholder="First"
@@ -35,15 +36,17 @@ function EditContact() {
                 />
                 <input
                     aria-label="Last name"
+                    className="grow-2"
                     defaultValue={contact.last}
                     name="last"
                     placeholder="Last"
                     type="text"
                 />
             </p>
-            <label>
-                <span>Bluesky</span>
+            <label className="flex">
+                <span className="w-32">Bluesky</span>
                 <input
+                    className="grow-2"
                     defaultValue={contact.bsky}
                     name="bsky"
                     pattern="@?[a-zA-Z0-9][a-zA-Z0-9.\-]*\.[a-zA-Z0-9][a-zA-Z0-9.\-]*"
@@ -52,21 +55,27 @@ function EditContact() {
                     type="text"
                 />
             </label>
-            <label>
-                <span>Avatar URL</span>
+            <label className="flex">
+                <span className="w-32">Avatar URL</span>
                 <input
                     aria-label="Avatar URL"
+                    className="grow-2"
                     defaultValue={contact.avatar ?? undefined}
                     name="avatar"
                     placeholder="https://example.com/avatar.jpg"
                     type="url"
                 />
             </label>
-            <label>
-                <span>Notes</span>
-                <textarea defaultValue={contact.notes} name="notes" rows={6} />
+            <label className="flex">
+                <span className="w-32">Notes</span>
+                <textarea
+                    className="grow-2"
+                    defaultValue={contact.notes}
+                    name="notes"
+                    rows={6}
+                />
             </label>
-            <p>
+            <p className="m-0 ml-32 flex gap-2">
                 <button type="submit">Save</button>
                 <CancelButton id={params.id} />
             </p>

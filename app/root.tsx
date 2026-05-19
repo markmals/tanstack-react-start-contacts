@@ -40,23 +40,25 @@ function App() {
     let { data: contacts } = useSuspenseQuery(listContactsQuery(q));
 
     return (
-        <div id="root">
-            <div id="sidebar">
-                <h1>TanStack Contacts</h1>
-                <div>
+        <div className="flex h-full w-full">
+            <div className="flex w-88 flex-col border-r border-border bg-sidebar">
+                <h1 className="order-1 m-0 flex items-center border-t border-border px-8 py-4 text-base font-medium leading-none before:mr-3 before:inline-block before:h-7 before:w-7 before:bg-[url('/tanstack-logo-small.png')] before:bg-contain before:bg-center before:bg-no-repeat before:content-['']">
+                    TanStack Contacts
+                </h1>
+                <div className="flex items-center gap-2 border-b border-border px-8 py-4">
                     <SearchForm query={q} results={contacts.length} />
                     <NewButton />
                 </div>
-                <nav>
+                <nav className="flex-1 overflow-auto px-8 pt-4">
                     {contacts.length ? (
-                        <ul>
+                        <ul className="m-0 list-none p-0">
                             {contacts.map(contact => (
-                                <SidebarItem contact={contact} />
+                                <SidebarItem contact={contact} key={contact._id} />
                             ))}
                         </ul>
                     ) : (
                         <p>
-                            <i>No contacts</i>
+                            <i className="text-muted">No contacts</i>
                         </p>
                     )}
                 </nav>
