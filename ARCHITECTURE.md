@@ -2,7 +2,7 @@
 
 This document captures the architecture of this repository as a reference
 implementation. The goal is that a human or agent picking up a greenfield app
-can use it as an *archetype*: the choices, the seams, the gotchas, and the
+can use it as an _archetype_: the choices, the seams, the gotchas, and the
 reasons behind them. It is not a tutorial on any one tool — it is a guide to
 how these tools compose, and what to do (and not do) at each seam.
 
@@ -21,8 +21,10 @@ The stack:
 - **Cloudflare Workers** — the SSR runtime, via `@cloudflare/vite-plugin` and
   `wrangler`.
 - **Vite (vite-plus)** — dev server, build, task runner.
-- **`@remix-run/data-schema`** — schema validation at all the boundaries
-  (search params, form data, env vars).
+- **Tailwind CSS v4** — styling via `@tailwindcss/vite`, with design tokens
+  declared in `@theme` and component-local utility classes everywhere else.
+- **Valibot** + **`@conform-to/valibot`** — schema validation at all the
+  boundaries (search params, form data, env vars).
 
 If you are building a new app on this stack, the patterns here should transfer
 1:1. If you are extending this app, read **§ Conventions & Gotchas** first.
@@ -37,7 +39,7 @@ codebase. Internalize it before reading anything else.
 **Every user-visible action — clicking a button, submitting a form,
 navigating between pages, toggling a favorite, deleting a record — works
 when JavaScript is disabled, broken, slow to load, or in the middle of
-hydrating.** JS is an *enhancement*, not a requirement.
+hydrating.** JS is an _enhancement_, not a requirement.
 
 Concretely, this means:
 
@@ -89,7 +91,7 @@ favorite toggle uses a direct Convex `useMutation` for optimistic
 updates ([`FavoriteButton`](app/components/buttons.tsx)). Even that one
 is still a `<form action={toggleFavorite.url}>` — without JS, it
 degrades to a normal server-function POST that re-renders the page.
-The optimistic flicker is the *enhancement*; correctness lives in the
+The optimistic flicker is the _enhancement_; correctness lives in the
 server function.
 
 ---
@@ -143,7 +145,7 @@ ephemeral; durable state lives in Convex.
 │   │   ├── mutations.ts       # createServerFn() handlers
 │   │   └── seed.ts            # Dev-only seeding
 │   ├── lib/
-│   │   ├── schemas.ts         # data-schema validators + parseEnv
+│   │   ├── schemas.ts         # Valibot validators + parseEnv
 │   │   ├── href.ts            # useHref() helper
 │   │   └── hooks.ts           # Shared client hooks
 │   └── styles/index.css
@@ -244,7 +246,7 @@ Key decisions:
 
 - **A fresh `QueryClient` per `getRouter()` call.** On the server this means
   per-request isolation (no cache bleed between users). On the client it means
-  one client for the lifetime of the page. *Never* hoist the QueryClient to
+  one client for the lifetime of the page. _Never_ hoist the QueryClient to
   module scope.
 - **Same `Wrap` runs in both environments.** Both providers wrap every render
   so hooks like `useMutation` from `convex/react` and `useSuspenseQuery` from
@@ -294,7 +296,7 @@ Why this is the canonical shape:
 
 - **The loader populates the cache; the component reads from it.** The
   component does not receive data via props from the loader (TanStack Router
-  *can* do that, but it bypasses React Query and loses the realtime channel).
+  _can_ do that, but it bypasses React Query and loses the realtime channel).
   Both use the same query options builder, so the cache key is guaranteed
   identical.
 - **`ensureQueryData` is the SSR-safe call.** It returns the existing value if
@@ -303,7 +305,7 @@ Why this is the canonical shape:
 - **`useSuspenseQuery` in the component** is what lets `@convex-dev/react-query`
   swap the HTTP-fetched value for a live WebSocket subscription on the client
   once mounted. Combined with hydration this means: server renders the
-  contact, browser receives the HTML *and* a live subscription pointed at the
+  contact, browser receives the HTML _and_ a live subscription pointed at the
   same query.
 - **`throw notFound()`** from the loader if the row doesn't exist. The router
   renders the closest `notFoundComponent`. Re-check in the component too,
@@ -353,7 +355,7 @@ contact in place.
 
 The clever bit of this stack is that **all reads go through React Query, but
 the actual transport on the client is a Convex WebSocket subscription**. You
-write code that *looks* like React Query, and Convex makes it live.
+write code that _looks_ like React Query, and Convex makes it live.
 
 ### Two clients, two transports
 
@@ -410,9 +412,9 @@ export function listContactsQuery(q?: string) {
 }
 ```
 
-- One builder per Convex query. Export from `app/data/queries.ts`. *Never*
+- One builder per Convex query. Export from `app/data/queries.ts`. _Never_
   inline `convexQuery(...)` calls in components — the loader and the
-  component must produce the *same* options object so the query key matches.
+  component must produce the _same_ options object so the query key matches.
 - `api.contacts.list` is the type-safe reference to a Convex function. The
   generated types in `convex/_generated/api.d.ts` make `args` and return value
   fully typed end-to-end.
@@ -431,7 +433,7 @@ export let list = query({
 });
 ```
 
-- `args` is a Convex validator (not data-schema). It governs the wire format
+- `args` is a Convex validator (not Valibot). It governs the wire format
   and gives the codegen its types.
 - Use `v.id("contacts")` for typed document IDs. Server functions on the start
   side typecast `string` → `Id<"contacts">`; Convex validates at the boundary.
@@ -466,22 +468,22 @@ There are **two valid ways to mutate data** in this stack, and choosing
 between them is the single most important architectural decision per
 feature.
 
-| | Server function (`createServerFn`) | Convex mutation (`useMutation`) |
-|--|--|--|
-| Runs in | Cloudflare Worker | Browser (sends RPC to Convex) |
-| Endpoint URL | `serverFn.url` (Worker route) | None (Convex client) |
-| Input | `FormData` or JSON, validated by data-schema | Typed args, validated by Convex `v` |
-| Works without JS | Yes (HTML form posts) | No |
-| Redirect support | Yes (`throw redirect(...)`) | No |
-| Optimistic updates | Manual | Built in (`.withOptimisticUpdate`) |
-| Reads | Via `ConvexHttpClient` | N/A |
+|                    | Server function (`createServerFn`)           | Convex mutation (`useMutation`)     |
+| ------------------ | -------------------------------------------- | ----------------------------------- |
+| Runs in            | Cloudflare Worker                            | Browser (sends RPC to Convex)       |
+| Endpoint URL       | `serverFn.url` (Worker route)                | None (Convex client)                |
+| Input              | `FormData` or JSON, validated by Valibot     | Typed args, validated by Convex `v` |
+| Works without JS   | Yes (HTML form posts)                        | No                                  |
+| Redirect support   | Yes (`throw redirect(...)`)                  | No                                  |
+| Optimistic updates | Manual                                       | Built in (`.withOptimisticUpdate`)  |
+| Reads              | Via `ConvexHttpClient`                       | N/A                                 |
 
 **Heuristic:**
 
 - **Default to a server function.** It gives you a stable URL for
   `<form action>`, redirects, and a no-JS path by default. The
   prime directive (§ 0) makes this the path of least resistance.
-- **Layer a direct Convex `useMutation` on top *only* when you need
+- **Layer a direct Convex `useMutation` on top _only_ when you need
   optimistic UI** the user will notice on slow networks. Even then,
   keep the form's `action` pointing at a server function so the
   non-JS path still works. The favorite toggle in
@@ -509,9 +511,9 @@ Conventions:
 
 - Declare method explicitly (`POST`). The form `action` and `method` come
   from `serverFn.url` / `serverFn.method` (see § 6).
-- Validate input with data-schema; `fromInput<FormData>()(Schema)` lets the
+- Validate input with Valibot; `fromInput<FormData>()(Schema)` lets the
   validator parse a `FormData` object directly via
-  `@remix-run/data-schema/form-data`.
+  `@conform-to/valibot`'s `parseWithValibot`.
 - Throw `redirect(...)` instead of returning a Response. TanStack Start
   unwinds it correctly on both the JS and non-JS code paths.
 - Throw `notFound()` for 404s. Same reasoning.
@@ -575,7 +577,7 @@ export function DeleteButton(props: ComponentProps<"form"> & { id: string }) {
 Why it's shaped this way:
 
 - **`action={serverFn.url}` + `method={serverFn.method}`** mean the form
-  works *without JavaScript*. The Worker handles the POST natively, the
+  works _without JavaScript_. The Worker handles the POST natively, the
   server function redirects, and the browser follows. End to end, no JS
   involved.
 - **`useServerFn(destroyContact)`** gives a callable that JS-enhances the
@@ -612,7 +614,7 @@ return (
 );
 ```
 
-The form is a *GET* form — without JS the browser navigates by appending
+The form is a _GET_ form — without JS the browser navigates by appending
 the form data to the URL (here, none). With JS, `navigate()` does a
 client-side transition. Same destination either way. The same
 `linkOptions` are reused for both `useHref` (the no-JS `action`) and
@@ -628,7 +630,7 @@ own the values.
 
 ### Search form: a different beast
 
-`SearchForm` does *not* post; it updates the URL query string. Three
+`SearchForm` does _not_ post; it updates the URL query string. Three
 patterns worth copying:
 
 1. **Local state for the input, URL for the source of truth.** Router
@@ -655,7 +657,7 @@ export function useNavigating(): boolean {
 }
 ```
 
-True only when the *pathname* is changing (not just search params). Use it
+True only when the _pathname_ is changing (not just search params). Use it
 to fade content during route transitions without flickering on every
 keystroke in the search box. See `Details`, `SidebarItem`, `SearchForm`.
 
@@ -686,12 +688,12 @@ A request to `/contact/abc123`:
 2. Start calls `getRouter()`. A fresh `QueryClient` + `ConvexReactClient`
    are constructed.
 3. Router matches `/contact/$id`. Loaders run:
-   - Root loader: `ensureQueryData(listContactsQuery(q))` — populates the
-     contacts list.
-   - Show route loader: `ensureQueryData(getContactQuery("abc123"))` — fetches
-     the one contact.
-   - These hit Convex over the React Query `queryFn` (which is Convex's
-     under the hood). On the server it uses HTTP under the covers.
+    - Root loader: `ensureQueryData(listContactsQuery(q))` — populates the
+      contacts list.
+    - Show route loader: `ensureQueryData(getContactQuery("abc123"))` — fetches
+      the one contact.
+    - These hit Convex over the React Query `queryFn` (which is Convex's
+      under the hood). On the server it uses HTTP under the covers.
 4. React renders the route tree to HTML. `useSuspenseQuery` finds cached
    values from step 3, so no suspending occurs.
 5. `setupRouterSsrQueryIntegration` dehydrates the QueryClient and inlines
@@ -706,7 +708,7 @@ A request to `/contact/abc123`:
 Implications:
 
 - The initial page is fully rendered HTML. No client-side loading flash.
-- After hydration the page is *live*. Edit a contact in another tab and the
+- After hydration the page is _live_. Edit a contact in another tab and the
   open tab updates without a refresh.
 - If you bypass the loader (e.g. `useQuery` with a key the loader didn't
   prime), you'll get a client-side fetch and a loading state.
@@ -727,40 +729,40 @@ Concrete patterns used in this archetype:
 - **Per-route titles** — render `<title>` inside the route component.
   See [`ShowContact`](app/routes/show.tsx):
 
-  ```tsx
-  function ShowContact() {
-      let { data: contact } = useSuspenseQuery(getContactQuery(params.id));
-      return (
-          <div id="contact">
-              <title>{`${contact.first} ${contact.last} | TanStack Contacts`}</title>
-              {/* ...rest of the page */}
-          </div>
-      );
-  }
-  ```
+    ```tsx
+    function ShowContact() {
+        let { data: contact } = useSuspenseQuery(getContactQuery(params.id));
+        return (
+            <div id="contact">
+                <title>{`${contact.first} ${contact.last} | TanStack Contacts`}</title>
+                {/* ...rest of the page */}
+            </div>
+        );
+    }
+    ```
 
-  The `<title>` lives next to the data that produces it. React lifts it
-  to `<head>` automatically. SSR includes it in the initial HTML; SPA
-  navigations swap it.
+    The `<title>` lives next to the data that produces it. React lifts it
+    to `<head>` automatically. SSR includes it in the initial HTML; SPA
+    navigations swap it.
 
 - **Stylesheets, favicons, and other `<link>` tags** — render them
   wherever they belong semantically (typically the root). See
   [`Root`](app/root.tsx):
 
-  ```tsx
-  <head>
-      <meta charSet="utf-8" />
-      <meta content="width=device-width, initial-scale=1" name="viewport" />
-      <link href={styles} rel="stylesheet" />
-      <link href="/favicon.ico" rel="icon" type="image/x-icon" />
-      <title>TanStack Contacts</title>
-  </head>
-  ```
+    ```tsx
+    <head>
+        <meta charSet="utf-8" />
+        <meta content="width=device-width, initial-scale=1" name="viewport" />
+        <link href={styles} rel="stylesheet" />
+        <link href="/favicon.ico" rel="icon" type="image/x-icon" />
+        <title>TanStack Contacts</title>
+    </head>
+    ```
 
-  The root happens to render them directly inside `<head>` because it
-  owns the document shell. But a *route* could equally render a
-  `<link rel="preload">` for an above-the-fold image and React would
-  hoist it.
+    The root happens to render them directly inside `<head>` because it
+    owns the document shell. But a _route_ could equally render a
+    `<link rel="preload">` for an above-the-fold image and React would
+    hoist it.
 
 - **Per-page meta (OpenGraph, descriptions, canonical)** — same
   pattern: render `<meta>` and `<link rel="canonical">` inside the
@@ -786,7 +788,7 @@ Rules of thumb:
 - **No portals, no Helmet-style providers, no `useEffect` setting
   `document.title`.** If you see those, replace them.
 
-Caveat: nested `<title>` tags inside the *body* are valid for React's
+Caveat: nested `<title>` tags inside the _body_ are valid for React's
 hoisting but invalid HTML if they were to stay there. Don't worry —
 React removes them from the original position when it hoists. The
 mental model is "declare what you want in `<head>` from anywhere".
@@ -799,14 +801,17 @@ mental model is "declare what you want in `<head>` from anywhere".
 
 ```ts
 // app/lib/schemas.ts
-let EnvSchema = s.object({
-    DEV: s.boolean(),
-    SSR: s.boolean(),
-    VITE_CONVEX_URL: s.string().pipe(checks.url()),
+import * as v from "valibot";
+import { assert } from "@std/assert";
+
+let EnvSchema = v.object({
+    DEV: v.boolean(),
+    SSR: v.boolean(),
+    VITE_CONVEX_URL: v.pipe(v.string(), v.url()),
 });
 
 export function parseEnv(env: Record<string, unknown>) {
-    let parsed = s.parseSafe(EnvSchema, env);
+    let parsed = v.safeParse(EnvSchema, env);
     /* ... */
     assert(value, `\n\nMust provide the following environment variables:\n${issues.join("\n")}\n`);
     return value;
@@ -831,11 +836,11 @@ Pass `import.meta.env` in. Crashes loudly at startup if anything is missing.
     "name": "tanstack-react-start-contacts",
     "compatibility_date": "2026-05-17",
     "compatibility_flags": ["nodejs_compat"],
-    "main": "@tanstack/react-start/server-entry"
+    "main": "@tanstack/react-start/server-entry",
 }
 ```
 
-- `main` points at the TanStack Start server entry export, *not* a local
+- `main` points at the TanStack Start server entry export, _not_ a local
   file. The Vite + cloudflare plugins compose to produce a Worker bundle
   that runs through this entry.
 - `nodejs_compat` is required for some Convex client internals.
@@ -858,14 +863,58 @@ plugins: [
     }),
     react(),
     babel({ presets: [reactCompilerPreset()] }),
+    tailwindcss(),
 ],
 ```
 
 - `cloudflare` first sets up the Worker SSR environment named `"ssr"`. The
   TanStack Start plugin then targets that environment.
-- `react()` last (after `tanstackStart`) so JSX is transformed correctly.
+- `react()` after `tanstackStart` so JSX is transformed correctly.
 - `babel` with the React Compiler preset enables auto-memoization. Keep
   components straightforward; trust the compiler.
+- `tailwindcss()` is the Tailwind v4 Vite plugin — it scans templates and
+  emits the utility CSS that `app/styles/index.css` imports via
+  `@import "tailwindcss"`. CSS is processed through `lightningcss`
+  (`css.transformer: "lightningcss"` in the Vite config).
+
+### Styling: Tailwind v4 with `@theme` tokens
+
+[`app/styles/index.css`](app/styles/index.css) is the single CSS entry point.
+It uses Tailwind v4's CSS-first config:
+
+```css
+@import "tailwindcss";
+
+@theme {
+    --color-foreground: #121212;
+    --color-bsky: #3992ff;
+    --color-favorite: #eeb004;
+    /* ...design tokens... */
+}
+
+@layer base {
+    body { color: var(--color-foreground); /* ... */ }
+    button { /* ... */ }
+}
+
+@utility search-icon { background-image: url("data:image/svg+xml,..."); }
+@utility spinner-icon { background-image: url("data:image/svg+xml,..."); }
+```
+
+Conventions:
+
+- **Design tokens live in `@theme`.** Tailwind exposes each as a CSS
+  variable _and_ a generated utility (`--color-favorite` →
+  `text-favorite`, `bg-favorite`). Components reference tokens via
+  utilities, never raw hex values.
+- **Component-local utilities, not BEM-style classes.** Every JSX
+  element styles itself inline (`className="flex h-full w-full"`). No
+  `.contact-list { ... }` rules in CSS.
+- **`@utility` for shared one-off backgrounds** (inline SVG icons,
+  patterns) so they're still composable with state variants like
+  `hover:` or `data-[…]:`.
+- **The CSS file imports Tailwind once, at the top.** Don't fragment
+  styles into per-component CSS files — utilities go in JSX.
 
 ---
 
@@ -878,10 +927,13 @@ plugins: [
   app reseeds via `app/data/seed.ts` on first server boot.
 - `vpr build` — production build.
 - `vpr preview` — locally serve the built Worker.
-- `vpr typecheck` — runs codegen (`wrangler types`, `convex codegen`)
-  then `tsgo --noEmit`. Always green this before pushing.
+- `vpr typecheck` — runs codegen (`typegen:cloudflare` → `wrangler types`,
+  `typegen:convex` → `convex codegen --typecheck disable`) then
+  `tsgo --noEmit`. Always green this before pushing.
 - `vpr check` — `fmt` + `lint --fix` + `typecheck`. The single quality
-  gate to run before committing.
+  gate to run before committing. Lint is type-aware
+  (`typeAware: true, typeCheck: true`) and pulls in
+  `eslint-plugin-perfectionist` and `eslint-plugin-prefer-let`.
 
 Per `CLAUDE.md`: do **not** start the dev server from an agent context. The
 human likely has it running already; ask them to start one if needed.
@@ -919,6 +971,7 @@ re-run codegen.
 These mirror `CLAUDE.md` but with reasoning. When in doubt, follow these.
 
 ### Style
+
 - **`let`, not `const`**, for everything that isn't a true module-scope
   constant. Top-level constants use `SCREAMING_SNAKE_CASE`. Lint
   (`prefer-let/prefer-let`) enforces.
@@ -932,20 +985,23 @@ These mirror `CLAUDE.md` but with reasoning. When in doubt, follow these.
 - **Sorted JSX props** (perfectionist) — accept the lint suggestion.
 
 ### Types
+
 - **No `any`.** Use `unknown` if the type is genuinely unknown.
 - **No `as` typecasts** except at validated boundaries (e.g. casting
-  `string` → `Id<"contacts">` *immediately* before handing to Convex,
+  `string` → `Id<"contacts">` _immediately_ before handing to Convex,
   which revalidates).
 - **No non-null assertions (`!`).** Reach for `assert()` from
-  `@remix-run/assert` or a discriminated union instead.
+  `@std/assert` or a discriminated union instead.
 - **Infer types whenever possible.** Don't over-annotate function args
   or return types if the inference is correct.
 
 ### Cookies + storage
+
 - **Do not touch `document.cookie`.** Use TanStack Start's cookie
   utilities from `@tanstack/react-start/server`.
 
 ### Code organization
+
 - **Components do not call `convexQuery` directly.** They import a
   builder from `#/data/queries.ts`. This is what guarantees loader/
   component query-key parity.
@@ -956,6 +1012,7 @@ These mirror `CLAUDE.md` but with reasoning. When in doubt, follow these.
   data via props or read from already-primed queries.
 
 ### Performance
+
 - **Compile regexes at module scope**, never inside hot functions
   (e.g. `AT_PATTERN` in `convex/contacts.ts`).
 - **`defaultPreload: "intent"`** is already on — links preload on
@@ -964,14 +1021,16 @@ These mirror `CLAUDE.md` but with reasoning. When in doubt, follow these.
   unless profiling proves they're needed.
 
 ### Realtime gotchas
+
 - Convex queries are subscriptions. A row that exists at loader time can
   be deleted before the component reads it. Re-check `if (!contact) throw
-  notFound();` inside components, not just loaders.
+notFound();` inside components, not just loaders.
 - Optimistic updates via `.withOptimisticUpdate` apply to Convex's local
   store. React Query's hydrated cache will reconcile when the WebSocket
   pushes the canonical update.
 
 ### Server-only vs universal
+
 - Anything importing `@tanstack/react-start` server APIs (`createServerFn`,
   `ConvexHttpClient`) must only be reached from server-execution paths or
   through `useServerFn`. Don't import server-only modules eagerly into
@@ -979,6 +1038,7 @@ These mirror `CLAUDE.md` but with reasoning. When in doubt, follow these.
   metadata — `useServerFn` is the safe wrapper for the callable.
 
 ### When adding a new feature
+
 1. Add the table (or fields) to `convex/schema.ts`.
 2. Add Convex `query`/`mutation` handlers under `convex/<entity>.ts`.
 3. Add query-options builders in `app/data/queries.ts`.
@@ -992,7 +1052,7 @@ These mirror `CLAUDE.md` but with reasoning. When in doubt, follow these.
 
 ---
 
-## 11. What this archetype intentionally does *not* do
+## 11. What this archetype intentionally does _not_ do
 
 So you don't waste time looking for it:
 
@@ -1007,8 +1067,6 @@ So you don't waste time looking for it:
   and gate server functions with `await getAuth(...)` before opening
   the `ConvexHttpClient` (forward the token so the Convex side can
   enforce auth at the function boundary, not just the UI).
-- **No styling system.** Plain CSS in `app/styles/index.css`. Swap in
-  Tailwind, vanilla-extract, etc. without disturbing this architecture.
 - **No tests.** Add Vitest for unit tests, Playwright for e2e. The
   Convex CLI ships a `convex-test` harness for backend logic.
 - **No error boundaries beyond defaults.** Add `errorComponent` to routes
@@ -1022,20 +1080,21 @@ incrementally; none of them require breaking these patterns.
 
 ## 12. Quick reference: where things live
 
-| Need | Location |
-|---|---|
-| Add/change a database table | `convex/schema.ts` |
-| Add a Convex query/mutation | `convex/<entity>.ts` |
-| Build a typed query options object | `app/data/queries.ts` |
-| Add a server function (form post target) | `app/data/mutations.ts` |
-| Create or rename a route | `app/routes.ts` + file under `app/routes/` |
-| Validate search params / form data / env | `app/lib/schemas.ts` |
-| Compose providers around the router | `app/router.tsx` |
-| Render `<html>`, layout, root data | `app/root.tsx` |
-| Set page `<title>` / `<meta>` / `<link>` | Render directly in the route component (React 19 hoists) |
-| Configure Vite, vite-plus tasks, lint, fmt | `vite.config.ts` |
-| Configure the Worker | `wrangler.jsonc` |
-| Cloudflare binding types | `worker-configuration.d.ts` (generated) |
+| Need                                       | Location                                                 |
+| ------------------------------------------ | -------------------------------------------------------- |
+| Add/change a database table                | `convex/schema.ts`                                       |
+| Add a Convex query/mutation                | `convex/<entity>.ts`                                     |
+| Build a typed query options object         | `app/data/queries.ts`                                    |
+| Add a server function (form post target)   | `app/data/mutations.ts`                                  |
+| Create or rename a route                   | `app/routes.ts` + file under `app/routes/`               |
+| Validate search params / form data / env   | `app/lib/schemas.ts` (Valibot + `@conform-to/valibot`)    |
+| Add a design token or base style           | `app/styles/index.css` (`@theme`, `@layer base`)         |
+| Compose providers around the router        | `app/router.tsx`                                         |
+| Render `<html>`, layout, root data         | `app/root.tsx`                                           |
+| Set page `<title>` / `<meta>` / `<link>`   | Render directly in the route component (React 19 hoists) |
+| Configure Vite, vite-plus tasks, lint, fmt | `vite.config.ts`                                         |
+| Configure the Worker                       | `wrangler.jsonc`                                         |
+| Cloudflare binding types                   | `worker-configuration.d.ts` (generated)                  |
 
 ---
 
@@ -1047,7 +1106,9 @@ incrementally; none of them require breaking these patterns.
 - `@convex-dev/react-query`: https://docs.convex.dev/quickstart/react
 - Convex schema + validators: https://docs.convex.dev/database/schemas
 - Cloudflare Vite plugin: https://developers.cloudflare.com/workers/vite-plugin/
-- `@remix-run/data-schema`: schema validation patterns used here.
+- Valibot: https://valibot.dev — schema validation patterns used here.
+- `@conform-to/valibot`: https://conform.guide/api/valibot — form-data
+  parsing built on Valibot schemas.
 - React "you might not need an effect": https://react.dev/learn/you-might-not-need-an-effect
 
 When patterns above conflict with newer guidance from these sources,
