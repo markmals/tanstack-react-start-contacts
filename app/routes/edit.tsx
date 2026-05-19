@@ -68,12 +68,7 @@ function EditContact() {
             </label>
             <label className="flex">
                 <span className="w-32">Notes</span>
-                <textarea
-                    className="grow-2"
-                    defaultValue={contact.notes}
-                    name="notes"
-                    rows={6}
-                />
+                <textarea className="grow-2" defaultValue={contact.notes} name="notes" rows={6} />
             </label>
             <p className="m-0 ml-32 flex gap-2">
                 <button type="submit">Save</button>

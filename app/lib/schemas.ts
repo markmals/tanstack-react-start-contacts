@@ -1,54 +1,57 @@
-import { assert } from "@remix-run/assert";
-import * as s from "@remix-run/data-schema";
-import * as checks from "@remix-run/data-schema/checks";
-import * as coerce from "@remix-run/data-schema/coerce";
-import * as f from "@remix-run/data-schema/form-data";
+import { parseWithValibot } from "@conform-to/valibot";
+import { assert } from "@std/assert";
+import * as v from "valibot";
 
-export let QuerySchema = s.object({
-    q: s.optional(s.string()),
+export let QuerySchema = v.object({
+    q: v.optional(v.string()),
 });
 
-export let FavoriteSchema = f.object({
-    id: f.field(s.string()),
-    favorite: f.field(coerce.boolean()),
+export let FavoriteSchema = v.object({
+    id: v.string(),
+    favorite: v.pipe(
+        v.string(),
+        v.transform(value => value === "true"),
+    ),
 });
 
-export let UpdateSchema = f.object({
-    id: f.field(s.string()),
-    first: f.field(s.defaulted(s.string(), "")),
-    last: f.field(s.defaulted(s.string(), "")),
-    avatar: f.field(s.union([s.string(), s.undefined_()])),
-    bsky: f.field(s.defaulted(s.string(), "")),
-    notes: f.field(s.defaulted(s.string(), "")),
+export let UpdateSchema = v.object({
+    id: v.string(),
+    first: v.optional(v.string(), ""),
+    last: v.optional(v.string(), ""),
+    avatar: v.optional(v.string()),
+    bsky: v.optional(v.string(), ""),
+    notes: v.optional(v.string(), ""),
 });
 
-export let IdSchema = f.object({ id: f.field(s.string()) });
+export let IdSchema = v.object({ id: v.string() });
 
-export function fromInput<Input>() {
-    return <Output>(schema: s.Schema<unknown, Output>) =>
-        (input: Input) =>
-            s.parse(schema, input);
+export function fromInput<Input extends FormData = FormData>() {
+    return <Schema extends v.GenericSchema>(schema: Schema) =>
+        (input: Input): v.InferOutput<Schema> => {
+            let submission = parseWithValibot(input, { schema });
+            assert(submission.status === "success", "Invalid form submission");
+            return submission.value;
+        };
 }
 
 export function fromSearch<Result extends Record<string, unknown>>() {
-    return (schema: s.Schema<unknown, Result>) =>
+    return (schema: v.GenericSchema<unknown, Result>) =>
         (search: Record<string, unknown>): Result =>
-            s.parse(schema, search);
+            v.parse(schema, search);
 }
 
-let EnvSchema = s.object({
-    DEV: s.boolean(),
-    SSR: s.boolean(),
-    VITE_CONVEX_URL: s.string().pipe(checks.url()),
+let EnvSchema = v.object({
+    DEV: v.boolean(),
+    SSR: v.boolean(),
+    VITE_CONVEX_URL: v.pipe(v.string(), v.url()),
 });
 
 export function parseEnv(env: Record<string, unknown>) {
-    let parsed = s.parseSafe(EnvSchema, env);
-    let Path = s.optional(s.array(s.string()));
-    let issues = !parsed.success
-        ? parsed.issues.map(e => s.parse(Path, e.path)?.join(" ")).filter(Boolean)
-        : [];
-    let value = parsed.success ? parsed.value : null;
+    let parsed = v.safeParse(EnvSchema, env);
+    let issues = parsed.success
+        ? []
+        : parsed.issues.map(issue => issue.path?.map(p => String(p.key)).join(" ")).filter(Boolean);
+    let value = parsed.success ? parsed.output : null;
 
     assert(value, `\n\nMust provide the following environment variables:\n${issues.join("\n")}\n`);
 

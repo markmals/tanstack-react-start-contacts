@@ -11,15 +11,15 @@ importers:
 
   .:
     dependencies:
+      '@conform-to/valibot':
+        specifier: ^1.19.3
+        version: 1.19.3(valibot@1.4.0(typescript@6.0.3))
       '@convex-dev/react-query':
         specifier: ^0.1.0
         version: 0.1.0(@tanstack/react-query@5.100.10(react@19.2.6))(convex@1.39.1(react@19.2.6))
-      '@remix-run/assert':
-        specifier: ^0.2.0
-        version: 0.2.0
-      '@remix-run/data-schema':
-        specifier: ^0.2.0
-        version: 0.2.0
+      '@std/assert':
+        specifier: jsr:^1.0.19
+        version: '@jsr/std__assert@1.0.19'
       '@tanstack/react-query':
         specifier: ^5.100.10
         version: 5.100.10(react@19.2.6)
@@ -53,6 +53,9 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.6(react@19.2.6)
+      valibot:
+        specifier: ^1.4.0
+        version: 1.4.0(typescript@6.0.3)
     devDependencies:
       '@cloudflare/vite-plugin':
         specifier: ^1.29.0
@@ -247,6 +250,14 @@ packages:
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
+
+  '@conform-to/dom@1.19.3':
+    resolution: {integrity: sha512-ugNx4nMiSSEkIepo5rKxUW1I1Iab3ZFuRjNYw2b2zb7BSQJfDq4DwbywaAd55qS/8PVGp1n5G2O6orDHWPWWqA==}
+
+  '@conform-to/valibot@1.19.3':
+    resolution: {integrity: sha512-/J4HlaK75KlVZasEloicvTN2Bk9qnYNg3peOLzn4jJ+E8sxxPRNTsBJd557y4/Qm+HxU66mEh2ezihSy2Y43Xw==}
+    peerDependencies:
+      valibot: '>= 0.32.0'
 
   '@convex-dev/react-query@0.1.0':
     resolution: {integrity: sha512-ULmBZCtAQDUePdBhUv7hj1Yy4QiCelhi6uEIOtMpjW8db6W9CFKvQwLt9heLngccFyMFfAZdOfSrT+cP4AH0Jw==}
@@ -801,6 +812,12 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
+  '@jsr/std__assert@1.0.19':
+    resolution: {integrity: sha512-pEj6RPkGbqlgRmyKwATp4cUs6+ijxtdrv3bq8v1d2I2CEcMEyPaO8cVKro61wGRDH4cNg8Zx6haztvK/9m7gkA==, tarball: https://npm.jsr.io/~/11/@jsr/std__assert/1.0.19.tgz}
+
+  '@jsr/std__internal@1.0.13':
+    resolution: {integrity: sha512-FIyYlSZkAwdupuTybRiU53MnrQUsyulhf6bPZ4bBILl1KqHCkKUlJ5TnLIATNezA5Yg7fAn64EE4vuHep2Urog==, tarball: https://npm.jsr.io/~/11/@jsr/std__internal/1.0.13.tgz}
+
   '@napi-rs/wasm-runtime@1.1.4':
     resolution: {integrity: sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow==}
     peerDependencies:
@@ -1148,12 +1165,6 @@ packages:
 
   '@poppinss/exception@1.2.3':
     resolution: {integrity: sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw==}
-
-  '@remix-run/assert@0.2.0':
-    resolution: {integrity: sha512-SNfcxPQstoIBr/hbRSsTYLNnmIXMgiL4cY8o5HH9PE7Ue/NQcIwqNJtvV0xVrk3pY/ywxHhAwSl2V8ao1Is9Cg==}
-
-  '@remix-run/data-schema@0.2.0':
-    resolution: {integrity: sha512-bXgdWcWZS6TkbVO9Piwn035iw0LczfSTFrCW4Vd1k57x/4j3eWZwfHBr3lXdw5whefacs3m3pVZ8RUiu8NtBeA==}
 
   '@rolldown/binding-android-arm64@1.0.1':
     resolution: {integrity: sha512-fJI3I0r3C3Oj/zdBCpaCmBRZYf07xpaq4yCfDDoSFm+beWNzbIl26puW8RraUdugoJw/95zerNOn6jasAhzSmg==}
@@ -2645,6 +2656,14 @@ packages:
     resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
     hasBin: true
 
+  valibot@1.4.0:
+    resolution: {integrity: sha512-iC/x7fVcSyOwlm/VSt7RlHnzNGLGvR9GnxdifUeWoCJo0q4ZZvrVkIHC6faTlkxG47I2Y4UrFquPuVHCrOnrLg==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   vite-plugin-devtools-json@1.0.0:
     resolution: {integrity: sha512-MobvwqX76Vqt/O4AbnNMNWoXWGrKUqZbphCUle/J2KXH82yKQiunOeKnz/nqEPosPsoWWPP9FtNuPBSYpiiwkw==}
     peerDependencies:
@@ -2900,6 +2919,13 @@ snapshots:
 
   '@cloudflare/workerd-windows-64@1.20260515.1':
     optional: true
+
+  '@conform-to/dom@1.19.3': {}
+
+  '@conform-to/valibot@1.19.3(valibot@1.4.0(typescript@6.0.3))':
+    dependencies:
+      '@conform-to/dom': 1.19.3
+      valibot: 1.4.0(typescript@6.0.3)
 
   '@convex-dev/react-query@0.1.0(@tanstack/react-query@5.100.10(react@19.2.6))(convex@1.39.1(react@19.2.6))':
     dependencies:
@@ -3248,6 +3274,12 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@jsr/std__assert@1.0.19':
+    dependencies:
+      '@jsr/std__internal': 1.0.13
+
+  '@jsr/std__internal@1.0.13': {}
+
   '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
       '@emnapi/core': 1.10.0
@@ -3441,12 +3473,6 @@ snapshots:
       supports-color: 10.2.2
 
   '@poppinss/exception@1.2.3': {}
-
-  '@remix-run/assert@0.2.0': {}
-
-  '@remix-run/data-schema@0.2.0':
-    dependencies:
-      '@standard-schema/spec': 1.1.0
 
   '@rolldown/binding-android-arm64@1.0.1':
     optional: true
@@ -4873,6 +4899,10 @@ snapshots:
       react: 19.2.6
 
   uuid@11.1.1: {}
+
+  valibot@1.4.0(typescript@6.0.3):
+    optionalDependencies:
+      typescript: 6.0.3
 
   vite-plugin-devtools-json@1.0.0(@voidzero-dev/vite-plus-core@0.1.21(@types/node@25.8.0)(esbuild@0.27.3)(jiti@2.7.0)(typescript@6.0.3)):
     dependencies:

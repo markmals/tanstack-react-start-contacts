@@ -8,9 +8,9 @@
         "#convex/*": "./convex/*"
     },
     "dependencies": {
+        "@conform-to/valibot": "^1.19.3",
         "@convex-dev/react-query": "^0.1.0",
-        "@remix-run/assert": "^0.2.0",
-        "@remix-run/data-schema": "^0.2.0",
+        "@std/assert": "jsr:^1.0.19",
         "@tanstack/react-query": "^5.100.10",
         "@tanstack/react-router": "^1.170.4",
         "@tanstack/react-router-devtools": "^1.167.0",
@@ -21,7 +21,8 @@
         "es-toolkit": "^1.45.1",
         "match-sorter": "^8.2.0",
         "react": "^19.0.0",
-        "react-dom": "^19.0.0"
+        "react-dom": "^19.0.0",
+        "valibot": "^1.4.0"
     },
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.29.0",
